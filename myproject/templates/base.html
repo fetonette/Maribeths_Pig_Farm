@@ -28,6 +28,77 @@
             width: 100%;
             min-height: 100vh;
         }
+        .standard-page-header {
+            background: #22c55e;
+            color: #fff;
+            padding: 32px 24px;
+            margin: 0 auto 30px;
+            border-radius: 0 0 25px 25px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+        .standard-page-header .header-inner {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .standard-page-header .header-inner .header-left {
+            flex: 1;
+            min-width: 0;
+        }
+        .standard-page-header .page-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            line-height: 1.1;
+        }
+        .standard-page-header .page-tagline {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 8px;
+            font-weight: 400;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .standard-page-header .header-badge {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+            text-transform: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .standard-page-header .header-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .standard-page-header.standard-page-header--full {
+            margin: 0 0 20px 0;
+            padding: 32px 40px;
+            max-width: none;
+            border-radius: 0 0 25px 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            background: #22c55e;
+            box-sizing: border-box;
+        }
         /* Sidebar (Argon-like) */
         .sidebar {
             position: fixed;

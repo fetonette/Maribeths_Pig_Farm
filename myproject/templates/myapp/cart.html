@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Pig Cart - Pig Farm{% endblock %}
 
@@ -300,22 +301,25 @@
         color: white;
         transform: translateY(-2px);
     }
+    .page-content {
+        max-width: 1200px;
+        margin: 0 auto 60px;
+        padding: 0 20px;
+    }
 </style>
 
-<div class="container-fluid">
-    <div class="page-header">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="page-title">
-                        <i class="fas fa-shopping-cart me-3"></i>Pig Cart
-                    </h1>
-                    <p class="mb-0 mt-2" style="opacity: 0.9; font-size: 1.1rem;">Select items to purchase</p>
-                </div>
-            </div>
+<div class="standard-page-header">
+    <div class="header-inner">
+        <div class="header-left">
+            <h1 class="page-title">
+                <i class="fas fa-shopping-cart" aria-hidden="true"></i>Pig Cart
+            </h1>
+            <p class="page-tagline">Select items to purchase</p>
         </div>
     </div>
+</div>
 
+<div class="page-content">
     {% if cart_items %}
         <form id="cart-form" method="post" action="{% url 'checkout_cart' %}">
             {% csrf_token %}
@@ -399,27 +403,6 @@
                     <button type="button" class="btn btn-outline-light btn-sm flex-1" onclick="selectAll()" style="border: 2px solid rgba(255, 255, 255, 0.5); color: white; font-weight: 600; padding: 10px 20px; border-radius: 15px; transition: all 0.3s ease;">
                         <i class="fas fa-check-double me-2"></i>Select All
                     </button>
-                    <button type="button" class="btn btn-outline-light btn-sm flex-1" onclick="deselectAll()" style="border: 2px solid rgba(255, 255, 255, 0.5); color: white; font-weight: 600; padding: 10px 20px; border-radius: 15px; transition: all 0.3s ease;">
-                        <i class="fas fa-times me-2"></i>Deselect All
-                    </button>
-                </div>
-            </div>
-        </form>
-    {% else %}
-        <div class="cart-card">
-            <div class="empty-cart">
-                <div class="empty-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                </div>
-                <h4 class="mb-3">Your cart is empty</h4>
-                <p class="text-muted mb-4">Add some pigs to your cart to get started!</p>
-                <a href="{% url 'available_pigs' %}" class="btn-continue">
-                    <i class="fas fa-piggy-bank me-2"></i>Browse Pigs
-                </a>
-            </div>
-        </div>
-    {% endif %}
-
 </div>
 
 <script>

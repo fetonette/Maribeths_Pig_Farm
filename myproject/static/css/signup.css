@@ -123,6 +123,17 @@ body, html {
     position: relative;
 }
 
+@media (max-width: 768px) {
+    .logo-container.signup {
+        width: min(160px, 60vw) !important;
+        height: min(160px, 60vw) !important;
+        margin: 0 auto 20px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
 .logo-container.signup::after {
     display: none !important;
 }

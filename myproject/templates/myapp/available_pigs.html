@@ -10,16 +10,6 @@
 
 {% block content %}
 <style>
-    .page-header {
-        background: #22c55e;
-        color: white;
-        padding: 40px 0;
-        margin: 0 auto 40px auto;
-        border-radius: 0 0 25px 25px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        max-width: 1200px;
-        width: 100%;
-    }
     .page-title {
         font-size: 2.5rem;
         font-weight: 700;
@@ -33,12 +23,35 @@
         font-weight: 400;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
-    .pig-count {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
+    .header-badge {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 10px 22px;
+        border-radius: 999px;
+        font-weight: 700;
+        border: 1px solid rgba(255, 255, 255, 0.6);
         backdrop-filter: blur(10px);
+        color: #fff;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .header-add-pig-btn {
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        color: #22c55e;
+        font-weight: 700;
+        padding: 14px 24px;
+        border-radius: 12px;
+        text-decoration: none;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
     .pig-grid {
         display: grid;
@@ -403,35 +416,35 @@
     }
 </style>
 
-<div class="container-fluid">
-    <div class="page-header">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center">
-                {% if user.is_superuser or user.is_staff %}
-                <div>
-                    <h1 class="page-title">
-                        <i class="fas fa-piggy-bank me-3" aria-hidden="true"></i>Pig Management
-                    </h1>
-                    <p class="page-tagline">Oversee your livestock inventory & operations</p>
-                </div>
-                <a href="{% url 'admin_pig_add' %}" class="btn btn-light add-pig-btn" style="background: rgba(255, 255, 255, 0.95); border: 2px solid rgba(255, 255, 255, 0.8); color: #22c55e; font-weight: 700; padding: 14px 24px; border-radius: 12px; text-decoration: none; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.9rem;">
-                    <i class="fas fa-plus me-2"></i>Add New Pig
-                </a>
-                {% else %}
-                <div>
-                    <h1 class="page-title">
-                        <i class="fas fa-piggy-bank me-3" aria-hidden="true"></i>Available Pigs
-                    </h1>
-                    <p class="page-tagline">Find your perfect pig for breeding & farming</p>
-                </div>
-                <div class="pig-count">
-                    {{ pigs|length }} pig{{ pigs|length|pluralize }} available
-                </div>
-                {% endif %}
-            </div>
+<div class="standard-page-header standard-page-header--full">
+    <div class="header-inner">
+        <div class="header-left">
+            {% if user.is_superuser or user.is_staff %}
+            <h1 class="page-title">
+                <i class="fas fa-piggy-bank" aria-hidden="true"></i>Pig Management
+            </h1>
+            <p class="page-tagline">Oversee your livestock inventory & operations</p>
+            {% else %}
+            <h1 class="page-title">
+                <i class="fas fa-piggy-bank" aria-hidden="true"></i>Available Pigs
+            </h1>
+            <p class="page-tagline">Find your perfect pig for breeding & farming</p>
+            {% endif %}
         </div>
+        {% if user.is_superuser or user.is_staff %}
+        <div class="header-action">
+            <a href="{% url 'admin_pig_add' %}" class="header-add-pig-btn">
+                <i class="fas fa-plus"></i>Add New Pig
+            </a>
+        </div>
+        {% else %}
+        <div class="header-badge">
+            <i class="fas fa-piggy-bank"></i>{{ pigs|length }} pig{{ pigs|length|pluralize }} available
+        </div>
+        {% endif %}
     </div>
-    
+</div>
+
     {% if messages %}
         {% for message in messages %}
             {% if message.tags == 'success' %}

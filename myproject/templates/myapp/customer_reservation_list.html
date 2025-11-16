@@ -398,6 +398,60 @@
     .table tbody tr:nth-child(3) { animation-delay: 0.3s; }
     .table tbody tr:nth-child(4) { animation-delay: 0.4s; }
     .table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+
+    .table-slide {
+        position: relative;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        border-radius: 0 0 15px 15px;
+        padding-bottom: 8px;
+        margin: 0;
+    }
+
+    .table-slide::after,
+    .table-slide::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 8px;
+        width: 40px;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .table-slide::before {
+        left: 0;
+        background: linear-gradient(to right, rgba(255,255,255,0.9), transparent);
+    }
+
+    .table-slide::after {
+        right: 0;
+        background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
+    }
+
+    .table-slide table {
+        min-width: 900px;
+        scroll-snap-align: start;
+    }
+
+    @media (max-width: 992px) {
+        .table-slide::after,
+        .table-slide::before {
+            opacity: 1;
+        }
+
+        .table th,
+        .table td {
+            font-size: 0.75rem;
+            padding: 12px;
+        }
+
+        .table th span {
+            display: block;
+            font-size: 0.65rem;
+        }
+    }
 </style>
 
 <div class="container-fluid">
@@ -463,7 +517,8 @@
         {% if reservations %}
             {% with active_orders=reservations|dictsort:"status" %}
             {% if active_orders %}
-            <table class="table table-hover">
+            <div class="table-slide">
+                <table class="table table-hover">
                 <thead>
                     <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
                         <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">PAID</th>
@@ -530,16 +585,8 @@
                                 {% endif %}
                             </div>
                         </td>
-                        <td style="text-align: center;">
-                            <span class="status-badge status-{{ reservation.status }}">
-                                {% if reservation.status == 'pending' %}
-                                    PENDING
-                                {% elif reservation.status == 'accepted' %}
-                                    ACCEPTED
-                                {% else %}
-                                    {{ reservation.get_status_display|upper }}
-                                {% endif %}
-                            </span>
+                        <td style="text-align: center; color: #166534; font-weight: 600;">
+                            <i class="fas fa-check me-1"></i>COMPLETED
                         </td>
                         <td style="text-align: center;">{{ reservation.created_at|date:"M d, Y" }}</td>
                         <td style="text-align: center;">
@@ -548,14 +595,6 @@
                                 <a href="{{ reservation.proof_of_payment.url }}" target="_blank" class="btn-action" 
                                    style="background: #f97316;">
                                     <i class="fas fa-file-image me-1"></i>Proof
-                                </a>
-                                {% endif %}
-                                {% if reservation.status == 'pending' %}
-                                <a href="{% url 'customer_reservation_edit' reservation.id %}" class="btn-action">
-                                    <i class="fas fa-edit me-1"></i>Edit
-                                </a>
-                                <a href="{% url 'customer_reservation_delete' reservation.id %}" class="btn-action btn-danger">
-                                    <i class="fas fa-times me-1"></i>Cancel
                                 </a>
                                 {% else %}
                                 <span class="btn-action btn-disabled" style="background: #e5e7eb; color: #9ca3af; cursor: not-allowed;">
@@ -568,7 +607,8 @@
                     {% endif %}
                     {% endfor %}
                 </tbody>
-            </table>
+                </table>
+            </div>
             {% else %}
             <div class="empty-state">
                 <div class="empty-icon">
@@ -604,7 +644,8 @@
         </div>
         {% with completed_orders=reservations|dictsort:"status" %}
         {% if completed_orders %}
-        <table class="table table-hover">
+        <div class="table-slide">
+            <table class="table table-hover">
             <thead>
                 <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
                     <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">PAID</th>
@@ -683,7 +724,8 @@
                 {% endif %}
                 {% endfor %}
             </tbody>
-        </table>
+            </table>
+        </div>
         {% else %}
         <div class="empty-state">
             <div class="empty-icon">
