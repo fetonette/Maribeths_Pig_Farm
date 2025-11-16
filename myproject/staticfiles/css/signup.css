@@ -1,0 +1,275 @@
+/* Signup Page Specific Styling */
+body, html {
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Hide scrollbars globally except for signup card */
+* {
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+}
+
+*::-webkit-scrollbar {
+    display: none !important; /* WebKit */
+}
+
+/* Show scrollbar only for signup card */
+.stylish-card.signup {
+    scrollbar-width: thin !important; /* Firefox */
+    -ms-overflow-style: auto !important;
+}
+
+.stylish-card.signup::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+}
+
+.stylish-card.signup::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1) !important;
+    border-radius: 3px !important;
+}
+
+.stylish-card.signup::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-radius: 3px !important;
+}
+
+.stylish-card.signup::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5) !important;
+}
+
+.auth-container.signup {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-container.signup::before {
+    background-size: 60px 60px;
+    animation: floatReverse 25s infinite linear;
+}
+
+@keyframes floatReverse {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(60px, 60px) rotate(-360deg); }
+}
+
+.stylish-card.signup {
+    max-width: 550px;
+    width: 90%;
+    max-height: 90vh;
+    border-radius: 30px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    padding: 30px 35px;
+    animation: slideInScale 0.9s ease-out;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+@keyframes slideInScale {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.logo-container.signup {
+    width: 120px;
+    height: 120px;
+    animation: pulse 3s infinite;
+    position: relative;
+}
+
+.logo-container.signup img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.stylish-input.signup {
+    font-size: 15px;
+    transition: all 0.4s ease;
+}
+
+.stylish-input.signup:focus {
+    border-color: #22c55e;
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.3);
+}
+
+.stylish-input.signup:hover {
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.stylish-label.signup {
+    color: #374151;
+    font-size: 13px;
+}
+
+.stylish-btn.signup {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    color: white;
+    border: none;
+    border-radius: 18px;
+    padding: 18px 35px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    box-shadow: 0 10px 25px rgba(34, 197, 94, 0.3);
+    transition: all 0.4s ease;
+}
+
+.stylish-btn.signup:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(34, 197, 94, 0.4);
+}
+
+.stylish-btn.signup::before {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.6s;
+}
+
+.stylish-btn.signup:active {
+    transform: translateY(-2px);
+}
+
+.stylish-link.signup {
+    color: #22c55e;
+}
+
+.stylish-link.signup::after {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    transition: width 0.4s ease;
+}
+
+.stylish-link.signup:hover {
+    color: #16a34a;
+    transform: translateY(-1px);
+}
+
+.welcome-text.signup {
+    background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+    font-weight: 800;
+    font-size: 34px;
+    animation: textShine 3s infinite;
+}
+
+@keyframes textShine {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.subtitle-text.signup {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.error-text {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+.form-row {
+    animation: slideInLeft 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.form-row:nth-child(2) { animation-delay: 0.1s; }
+.form-row:nth-child(3) { animation-delay: 0.2s; }
+.form-row:nth-child(4) { animation-delay: 0.3s; }
+.form-row:nth-child(5) { animation-delay: 0.4s; }
+.form-row:nth-child(6) { animation-delay: 0.5s; }
+.form-row:nth-child(7) { animation-delay: 0.6s; }
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Remove green line and decorative elements */
+.text-center::before, .text-center::after,
+.welcome-text.signup::before, .welcome-text.signup::after,
+.subtitle-text.signup::before, .subtitle-text.signup::after,
+.stylish-card.signup::before, .stylish-card.signup::after,
+.logo-container.signup::before, .logo-container.signup::after {
+    display: none !important;
+    content: none !important;
+    background: none !important;
+    border: none !important;
+}
+
+/* Remove any decorative lines or borders */
+.stylish-card.signup *,
+.text-center,
+.text-center *,
+.welcome-text.signup,
+.welcome-text.signup *,
+.subtitle-text.signup,
+.subtitle-text.signup *,
+.logo-container.signup,
+.logo-container.signup * {
+    border: none !important;
+    border-bottom: none !important;
+    border-top: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Universal green line removal */
+*[style*="background: #22c55e"],
+*[style*="background-color: #22c55e"],
+*[style*="background: green"],
+*[style*="border-bottom: 3px solid #22c55e"],
+*[style*="border-top: 3px solid #22c55e"],
+.auth-container .stylish-card > div[style*="green"],
+.auth-container .stylish-card > div[style*="#22c55e"],
+.auth-container .stylish-card div[style*="height: 3px"],
+.auth-container .stylish-card div[style*="height: 4px"],
+.auth-container .stylish-card div[style*="height: 5px"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    background: none !important;
+    border: none !important;
+}
+
+/* Remove any empty divs that might be creating decorative lines */
+.stylish-card.signup > div:empty,
+.text-center > div:empty {
+    display: none !important;
+}

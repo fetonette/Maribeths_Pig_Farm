@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Pig Farm{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header" style="background: #22c55e !important; color: white !important; padding: 30px; margin: -20px -20px 30px -20px; border-radius: 0 0 20px 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="display-5 mb-0" style="color: white !important;"><i class="fas fa-edit me-3"></i>{{ title }}</h1>
+                    <a href="{% url 'customer_reservation_list' %}" class="btn" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: white; border-radius: 8px; padding: 10px 20px; text-decoration: none; font-weight: 500; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255, 255, 255, 0.25)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'">
+                        <i class="fas fa-arrow-left me-2"></i> Back to My Reservations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card" style="border-radius: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); border: none;">
+                <div class="card-header" style="background: #f8f9fa !important; color: #495057 !important; border-bottom: 1px solid #dee2e6; border-radius: 15px 15px 0 0;">
+                    <h5 class="mb-0" style="font-weight: 700;"><i class="fas fa-calendar-check me-2"></i> Reservation Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Pig</label>
+                            <div class="form-control" style="background-color: #f8f9fa; border: 2px solid #e9ecef; color: #495057; font-weight: 600;">
+                                {{ reservation.pig.breed }}
+                                <br><small class="text-muted">{{ reservation.pig.age_months }}mo, {{ reservation.pig.weight_kg }}kg - ₱{{ reservation.pig.price|floatformat:0 }}</small>
+                            </div>
+                            <input type="hidden" name="pig" value="{{ reservation.pig.id }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.fullname.id_for_label }}" class="form-label">Full Name</label>
+                            {{ form.fullname }}
+                            {% if form.fullname.errors %}
+                                <div class="text-danger small">{{ form.fullname.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.contact_number.id_for_label }}" class="form-label">Contact Number</label>
+                            {{ form.contact_number }}
+                            {% if form.contact_number.errors %}
+                                <div class="text-danger small">{{ form.contact_number.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger small">{{ form.address.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.delivery_option.id_for_label }}" class="form-label">Delivery Option</label>
+                            {{ form.delivery_option }}
+                            {% if form.delivery_option.errors %}
+                                <div class="text-danger small">{{ form.delivery_option.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.pickup_date.id_for_label }}" class="form-label">Pickup/Delivery Date</label>
+                                {{ form.pickup_date }}
+                                {% if form.pickup_date.errors %}
+                                    <div class="text-danger small">{{ form.pickup_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.pickup_time.id_for_label }}" class="form-label">Pickup/Delivery Time</label>
+                                {{ form.pickup_time }}
+                                {% if form.pickup_time.errors %}
+                                    <div class="text-danger small">{{ form.pickup_time.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.payment_method.id_for_label }}" class="form-label">Payment Method</label>
+                            {{ form.payment_method }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger small">{{ form.payment_method.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Hidden fields for down_payment and proof_of_payment to maintain form compatibility -->
+                        {% if reservation %}
+                            <input type="hidden" name="down_payment" value="{{ reservation.down_payment }}">
+                            {% if reservation.proof_of_payment %}
+                                <input type="hidden" name="proof_of_payment" value="{{ reservation.proof_of_payment }}">
+                            {% endif %}
+                        {% else %}
+                            {{ form.down_payment.as_hidden }}
+                            {{ form.proof_of_payment.as_hidden }}
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'customer_reservation_list' %}" class="btn" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; transition: all 0.2s ease;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">Cancel</a>
+                            <button type="submit" class="btn" style="background: #22c55e !important; color: white !important; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; transition: all 0.2s ease;" onmouseover="this.style.background='#16a34a !important'" onmouseout="this.style.background='#22c55e !important'">
+                                <i class="fas fa-save me-2"></i> Update Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the contact number input field
+    const contactNumberInput = document.querySelector('input[name="contact_number"]');
+    
+    if (contactNumberInput) {
+        // Prevent non-numeric characters from being typed
+        contactNumberInput.addEventListener('keypress', function(e) {
+            // Allow only digits (0-9)
+            const char = String.fromCharCode(e.which);
+            if (!/[0-9]/.test(char)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Prevent pasting non-numeric content
+        contactNumberInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            const numbersOnly = paste.replace(/\D/g, ''); // Remove all non-digits
+            
+            // Only paste if there are numbers and it won't exceed 11 digits
+            if (numbersOnly && (this.value.length + numbersOnly.length) <= 11) {
+                this.value += numbersOnly;
+            }
+        });
+        
+        // Remove any non-numeric characters on input (fallback)
+        contactNumberInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, ''); // Remove all non-digits
+            
+            // Limit to 11 digits
+            if (this.value.length > 11) {
+                this.value = this.value.slice(0, 11);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Order - Pig Farm{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header" style="background: #22c55e !important; color: white !important; padding: 30px; margin: -20px -20px 30px -20px; border-radius: 0 0 20px 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="display-5 mb-0" style="color: white !important;"><i class="fas fa-times me-3"></i> Cancel Order</h1>
+                    <a href="{% url 'customer_reservation_list' %}" class="btn" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: white; border-radius: 8px; padding: 10px 20px; text-decoration: none; font-weight: 500; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255, 255, 255, 0.25)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'">
+                        <i class="fas fa-arrow-left me-2"></i> Back to My Reservations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card" style="border-radius: 15px; box-shadow: 0 8px 25px rgba(220, 53, 69, 0.15); border: 2px solid #dc3545;">
+                <div class="card-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border-radius: 13px 13px 0 0; border-bottom: none;">
+                    <h5 class="mb-0" style="font-weight: 700;"><i class="fas fa-exclamation-triangle me-2"></i> Confirm Deletion</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 1px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                        <div class="d-flex align-items-center">
+                            <div class="alert-icon me-3" style="width: 50px; height: 50px; background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <strong style="color: #856404; font-size: 1.1rem;">Warning:</strong>
+                                <p class="mb-0" style="color: #856404; margin-top: 5px;">This action cannot be undone! The pig will become available for other customers.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-center">Are you sure you want to cancel this order?</p>
+                    
+                    <div class="card" style="border-radius: 12px; border: 1px solid #dee2e6; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);">
+                        <div class="card-header" style="background: #f8f9fa; border-bottom: 1px solid #dee2e6; border-radius: 12px 12px 0 0;">
+                            <h6 class="mb-0" style="font-weight: 700; color: #495057;"><i class="fas fa-info-circle me-2"></i>Reservation Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Pig:</strong></div>
+                                <div class="col-8">{{ reservation.pig.breed }} - {{ reservation.pig.age_months }} months, {{ reservation.pig.weight_kg }} kg</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Price:</strong></div>
+                                <div class="col-8">₱{{ reservation.pig.price|floatformat:2 }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Your Name:</strong></div>
+                                <div class="col-8">{{ reservation.fullname }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Contact:</strong></div>
+                                <div class="col-8">{{ reservation.contact_number }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Address:</strong></div>
+                                <div class="col-8">{{ reservation.address }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Delivery:</strong></div>
+                                <div class="col-8">{{ reservation.get_delivery_option_display }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Payment:</strong></div>
+                                <div class="col-8">{{ reservation.get_payment_method_display }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Status:</strong></div>
+                                <div class="col-8">
+                                    <span class="badge 
+                                        {% if reservation.status == 'pending' %}bg-warning
+                                        {% elif reservation.status == 'confirmed' %}bg-info
+                                        {% elif reservation.status == 'completed' %}bg-success
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ reservation.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Reserved:</strong></div>
+                                <div class="col-8">{{ reservation.created_at|date:"M d, Y H:i" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{% url 'customer_reservation_list' %}" class="btn" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; margin-right: 10px;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);" onmouseover="this.style.background='linear-gradient(135deg, #c82333 0%, #a71e2a 100)'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='linear-gradient(135deg, #dc3545 0%, #c82333 100%)'; this.style.transform='translateY(0)'">
+                                <i class="fas fa-times me-2"></i> Yes, Cancel Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

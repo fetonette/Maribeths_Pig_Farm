@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Purchase Pig - Pig Farm{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-shopping-cart"></i> Purchase Pig</h2>
+                <a href="{% url 'available_pigs' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Available Pigs
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-piggy-bank"></i> Selected Pig</h5>
+                </div>
+                <div class="card-body">
+                    {% if pig.picture %}
+                    <img src="{{ pig.picture.url }}" class="card-img-top mb-3" alt="{{ pig.breed }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center mb-3" style="height: 200px;">
+                        <i class="fas fa-piggy-bank fa-4x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <h5 class="card-title">{{ pig.breed }}</h5>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Age:</strong></div>
+                        <div class="col-6">{{ pig.get_age_display }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Weight:</strong></div>
+                        <div class="col-6">{{ pig.weight_kg|floatformat:0 }} kg</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Sex:</strong></div>
+                        <div class="col-6">{{ pig.get_sex_display }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Price:</strong></div>
+                        <div class="col-6 text-success"><strong>₱{{ pig.price|floatformat:0 }}</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Purchase Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Quick Purchase:</strong> Pickup date is automatically set to today. Please select your preferred pickup time.
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- Debug: CSRF Token -->
+                        {% if debug %}
+                        <div class="alert alert-warning small">
+                            <strong>Debug:</strong> CSRF Token: {{ csrf_token }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.pig.id_for_label }}" class="form-label">Selected Pig</label>
+                            {{ form.pig }}
+                            {% if form.pig.errors %}
+                                <div class="text-danger small">{{ form.pig.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.fullname.id_for_label }}" class="form-label">Full Name</label>
+                                {{ form.fullname }}
+                                {% if form.fullname.errors %}
+                                    <div class="text-danger small">{{ form.fullname.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.contact_number.id_for_label }}" class="form-label">Contact Number</label>
+                                {{ form.contact_number }}
+                                {% if form.contact_number.errors %}
+                                    <div class="text-danger small">{{ form.contact_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger small">{{ form.address.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.delivery_option.id_for_label }}" class="form-label">Delivery Option</label>
+                            {{ form.delivery_option }}
+                            {% if form.delivery_option.errors %}
+                                <div class="text-danger small">{{ form.delivery_option.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Pickup/Delivery Date</label>
+                                    <input type="text" class="form-control" value="Tomorrow ({{ tomorrow|date:'F d, Y' }})" readonly style="background-color: #e9ecef;">
+                                    <small class="text-muted">Automatically set to tomorrow's date</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ form.pickup_time.id_for_label }}" class="form-label">{{ form.pickup_time.label }}</label>
+                                    {{ form.pickup_time }}
+                                    {% if form.pickup_time.errors %}
+                                        <div class="text-danger small">{{ form.pickup_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.payment_method.id_for_label }}" class="form-label">Payment Method</label>
+                            {{ form.payment_method }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger small">{{ form.payment_method.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div id="proof-payment-section">
+                            <div class="mb-3">
+                                <label for="{{ form.proof_of_payment.id_for_label }}" class="form-label">Upload Proof of Payment</label>
+                                <div class="text-muted small mb-2">Required for GCash payments</div>
+                                {{ form.proof_of_payment }}
+                                {% if form.proof_of_payment.errors %}
+                                    <div class="text-danger small">{{ form.proof_of_payment.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'available_pigs' %}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-shopping-cart"></i> Complete Purchase
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethod = document.getElementById('id_payment_method');
+    const proofSection = document.getElementById('proof-payment-section');
+    
+    function toggleProofSection() {
+        const value = paymentMethod.value;
+        if (value === 'gcash') {
+            proofSection.style.display = 'block';
+        } else {
+            proofSection.style.display = 'none';
+        }
+    }
+    
+    paymentMethod.addEventListener('change', toggleProofSection);
+    toggleProofSection(); // Initial check
+});
+</script>
+{% endblock %}

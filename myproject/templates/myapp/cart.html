@@ -1,0 +1,492 @@
+{% extends 'base.html' %}
+
+{% block title %}Pig Cart - Pig Farm{% endblock %}
+
+{% block head %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e !important;
+        color: white;
+        padding: 30px 0;
+        margin: -20px -20px 30px -20px;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .cart-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    .cart-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #f1f3f4;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        border-radius: 12px;
+        margin: 6px;
+        background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    }
+    .cart-item:hover {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+        box-shadow: 0 12px 30px rgba(34, 197, 94, 0.15);
+        border-color: rgba(34, 197, 94, 0.2);
+    }
+    .item-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .cart-checkbox {
+        width: 24px;
+        height: 24px;
+        accent-color: #22c55e;
+        cursor: pointer;
+        border-radius: 8px;
+        border: 3px solid #e9ecef;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: white;
+        position: relative;
+    }
+    .cart-checkbox:checked {
+        border-color: #22c55e;
+        background: #22c55e;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+        transform: scale(1.1);
+    }
+    .cart-checkbox:hover {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1);
+    }
+    .checkbox-label {
+        cursor: pointer;
+    }
+    .quantity-info {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+    .pig-image-container {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .pig-image-container:hover {
+        transform: scale(1.05) rotate(1deg);
+        box-shadow: 0 15px 35px rgba(34, 197, 94, 0.25);
+    }
+    .pig-image {
+        width: 70px;
+        height: 70px;
+        border-radius: 15px;
+        object-fit: cover;
+        border: 3px solid white;
+        transition: all 0.4s ease;
+        display: block;
+    }
+    .pig-placeholder {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+    .pig-placeholder i {
+        font-size: 2rem;
+        color: #22c55e;
+        opacity: 0.6;
+    }
+    .item-details {
+        flex: 1;
+        padding: 0 10px;
+    }
+    .breed-name {
+        font-weight: 800;
+        color: #1a202c;
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+        position: relative;
+    }
+    .breed-name::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 30px;
+        height: 3px;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border-radius: 2px;
+    }
+    .pig-info {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        line-height: 1.4;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .pig-info-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 600;
+    }
+    .pig-info-item i {
+        color: #22c55e;
+        font-size: 0.9rem;
+    }
+    .price-display {
+        font-weight: 800;
+        color: #1a202c;
+        font-size: 1.3rem;
+    }
+    .quantity-info {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: inline-block;
+        margin-top: 10px;
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .btn-remove {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+    .btn-remove:hover {
+        background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+        box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    .btn-remove {
+        text-decoration: none;
+    }
+    .btn-remove:focus {
+        text-decoration: none;
+    }
+    .item-total {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        text-align: right;
+        min-width: 120px;
+    }
+    .total-price-section {
+        margin-bottom: 15px;
+    }
+    .total-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 5px;
+    }
+    .cart-summary {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 25px;
+        margin-top: 30px;
+        box-shadow: 0 15px 40px rgba(34, 197, 94, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 1.15rem;
+        font-weight: 500;
+    }
+    .summary-total {
+        font-size: 1.4rem;
+        font-weight: 800;
+        border-top: 2px solid rgba(255, 255, 255, 0.3);
+        padding-top: 20px;
+        margin-top: 20px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .btn-checkout {
+        background: white;
+        color: #22c55e;
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        padding: 18px 35px;
+        border-radius: 30px;
+        font-weight: 800;
+        font-size: 1.15rem;
+        width: 100%;
+        margin-top: 25px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .btn-checkout:hover:not(:disabled) {
+        background: #f8f9fa;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        color: #16a34a;
+    }
+    .btn-checkout:disabled {
+        background: rgba(255, 255, 255, 0.3);
+        color: rgba(255, 255, 255, 0.7);
+        cursor: not-allowed;
+        opacity: 0.6;
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    .empty-cart {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+    .empty-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+    .btn-continue {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    .btn-continue:hover {
+        background: #16a34a;
+        color: white;
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="page-title">
+                        <i class="fas fa-shopping-cart me-3"></i>Pig Cart
+                    </h1>
+                    <p class="mb-0 mt-2" style="opacity: 0.9; font-size: 1.1rem;">Select items to purchase</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if cart_items %}
+        <form id="cart-form" method="post" action="{% url 'checkout_cart' %}">
+            {% csrf_token %}
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <div class="cart-card">
+                {% for item in cart_items %}
+                <div class="cart-item">
+                    <div class="item-checkbox">
+                        <input type="checkbox" name="selected_items" value="{{ item.id }}" id="item-{{ item.id }}" class="cart-checkbox" onchange="updateTotals()">
+                        <label for="item-{{ item.id }}" class="checkbox-label"></label>
+                    </div>
+                    
+                    <div class="pig-image-container">
+                        {% if item.pig.picture %}
+                            <img src="{{ item.pig.picture.url }}" alt="{{ item.pig.breed }}" class="pig-image">
+                        {% else %}
+                            <div class="pig-placeholder">
+                                <i class="fas fa-piggy-bank text-muted"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="item-details">
+                        <div class="breed-name">{{ item.pig.breed }}</div>
+                        <div class="pig-info">
+                            <div class="pig-info-item">
+                                <i class="fas fa-birthday-cake"></i>
+                                <span>{{ item.pig.get_age_display }}</span>
+                            </div>
+                            <div class="pig-info-item">
+                                <i class="fas fa-weight"></i>
+                                <span>{{ item.pig.weight_kg|floatformat:0 }}kg</span>
+                            </div>
+                            <div class="pig-info-item">
+                                <i class="fas fa-venus-mars"></i>
+                                <span>{{ item.pig.get_sex_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="item-total">
+                        <div class="total-price-section">
+                            <div class="total-label">Total</div>
+                            <div class="price-display item-price" data-price="{{ item.get_total_price }}">₱{{ item.get_total_price|floatformat:0 }}</div>
+                        </div>
+                        <a href="{% url 'remove_from_cart' item.id %}" class="btn-remove btn-sm mt-3">
+                            <i class="fas fa-trash me-1"></i>Remove
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Selected Items:</span>
+                    <span id="selected-count">0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="selected-subtotal">₱0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery Fee:</span>
+                    <span id="cart-delivery-fee">₱0</span>
+                </div>
+                <div class="summary-row summary-total">
+                    <span>Total Amount:</span>
+                    <span id="selected-total">₱0</span>
+                </div>
+                
+                <button type="submit" class="btn-checkout" id="checkout-btn" disabled onclick="return confirmCheckout()">
+                    <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+                </button>
+                
+                <div class="mt-2">
+                    <small class="text-muted">*Delivery fee will be calculated during checkout based on your selection</small>
+                </div>
+            
+                <div class="mt-4 d-flex gap-3">
+                    <button type="button" class="btn btn-outline-light btn-sm flex-1" onclick="selectAll()" style="border: 2px solid rgba(255, 255, 255, 0.5); color: white; font-weight: 600; padding: 10px 20px; border-radius: 15px; transition: all 0.3s ease;">
+                        <i class="fas fa-check-double me-2"></i>Select All
+                    </button>
+                    <button type="button" class="btn btn-outline-light btn-sm flex-1" onclick="deselectAll()" style="border: 2px solid rgba(255, 255, 255, 0.5); color: white; font-weight: 600; padding: 10px 20px; border-radius: 15px; transition: all 0.3s ease;">
+                        <i class="fas fa-times me-2"></i>Deselect All
+                    </button>
+                </div>
+            </div>
+        </form>
+    {% else %}
+        <div class="cart-card">
+            <div class="empty-cart">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h4 class="mb-3">Your cart is empty</h4>
+                <p class="text-muted mb-4">Add some pigs to your cart to get started!</p>
+                <a href="{% url 'available_pigs' %}" class="btn-continue">
+                    <i class="fas fa-piggy-bank me-2"></i>Browse Pigs
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+<script>
+function updateTotals() {
+    const checkboxes = document.querySelectorAll('.cart-checkbox:checked');
+    const selectedCountElement = document.getElementById('selected-count');
+    const selectedSubtotalElement = document.getElementById('selected-subtotal');
+    const selectedTotalElement = document.getElementById('selected-total');
+    const checkoutBtn = document.getElementById('checkout-btn');
+    
+    let selectedCount = 0;
+    let selectedSubtotal = 0;
+    const deliveryFee = 0; // No delivery fee until customer selects delivery option
+    
+    checkboxes.forEach(checkbox => {
+        const cartItem = checkbox.closest('.cart-item');
+        const priceElement = cartItem.querySelector('.item-price');
+        const price = parseFloat(priceElement.getAttribute('data-price'));
+        
+        selectedCount++;
+        selectedSubtotal += price;
+    });
+    
+    const finalTotal = selectedCount > 0 ? selectedSubtotal : 0; // No delivery fee in cart
+    
+    selectedCountElement.textContent = selectedCount;
+    selectedSubtotalElement.textContent = '₱' + selectedSubtotal.toLocaleString();
+    selectedTotalElement.textContent = '₱' + finalTotal.toLocaleString();
+    
+    // Enable/disable checkout button
+    checkoutBtn.disabled = selectedCount === 0;
+    if (selectedCount === 0) {
+        checkoutBtn.classList.add('btn-disabled');
+    } else {
+        checkoutBtn.classList.remove('btn-disabled');
+    }
+}
+
+function selectAll() {
+    const checkboxes = document.querySelectorAll('.cart-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateTotals();
+}
+
+function deselectAll() {
+    const checkboxes = document.querySelectorAll('.cart-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateTotals();
+}
+
+// Initialize totals on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateTotals();
+});
+
+function confirmCheckout() {
+    const checkboxes = document.querySelectorAll('.cart-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('Please select at least one item to checkout!');
+        return false;
+    }
+    return true;
+}
+</script>
+
+{% endblock %}

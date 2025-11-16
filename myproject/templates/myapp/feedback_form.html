@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+
+{% block title %}Feedback - Pig Farm{% endblock %}
+
+{% block content %}
+<style>
+    .feedback-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .feedback-header {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+    }
+    .feedback-header h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0 0 10px 0;
+    }
+    .feedback-header p {
+        font-size: 1.1rem;
+        margin: 0;
+        opacity: 0.9;
+    }
+    .feedback-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .rating-section {
+        margin-bottom: 25px;
+    }
+    .rating-label {
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 1rem;
+    }
+    .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+    .form-select:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        background: white;
+        outline: none;
+    }
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+    .form-control:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        background: white;
+        outline: none;
+    }
+    .form-check {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+    }
+    .form-check:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+    .form-check-input {
+        margin-right: 10px;
+        transform: scale(1.2);
+    }
+    .form-check-label {
+        font-weight: 600;
+        color: #374151;
+        cursor: pointer;
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 100%;
+        margin-top: 20px;
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    }
+    .btn-skip {
+        background: transparent;
+        border: 2px solid #6b7280;
+        color: #6b7280;
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        margin-top: 15px;
+        width: 100%;
+    }
+    .btn-skip:hover {
+        background: #6b7280;
+        color: white;
+        text-decoration: none;
+    }
+    .star-rating {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+    .star {
+        font-size: 4rem;
+        color: #d1d5db;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+    .star-label {
+        text-align: center;
+        font-weight: 700;
+        color: #1a202c;
+        font-size: 1.1rem;
+        margin-top: 10px;
+    }
+    .star:hover {
+        color: #fbbf24;
+        transform: scale(1.1);
+    }
+    .star.active {
+        color: #fbbf24;
+    }
+    .star.hover {
+        color: #fbbf24;
+    }
+    .reservation-info {
+        background: #f0f9ff;
+        border: 2px solid #bae6fd;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    .reservation-info h3 {
+        color: #0369a1;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+        font-size: 1.1rem;
+    }
+    .reservation-info p {
+        margin: 5px 0;
+        color: #374151;
+        font-weight: 500;
+    }
+    .pig-picture-card {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .pig-picture {
+        width: 200px;
+        height: 200px;
+        border-radius: 15px;
+        object-fit: cover;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        border: 3px solid #22c55e;
+    }
+</style>
+
+<div class="feedback-container">
+    <div class="feedback-header">
+        <h1><i class="fas fa-star me-3"></i>Share Your Experience</h1>
+        <p>Your feedback helps us improve our service and provide better experiences for all customers</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="margin-bottom: 20px;">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if reservation %}
+    <div class="alert alert-info" style="border-radius: 10px; padding: 20px; margin-bottom: 25px; border: none; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+        <i class="fas fa-clock me-2"></i><strong>Order Submitted!</strong> Your order has been submitted successfully. Please wait for admin approval before your order is processed. You will be notified once your order is accepted.
+    </div>
+    {% endif %}
+
+    <!-- Pig Picture -->
+    {% if reservation and reservation.pig and reservation.pig.picture %}
+    <div class="pig-picture-card">
+        <img src="{{ reservation.pig.picture.url }}" alt="{{ reservation.pig.breed }} Pig" class="pig-picture">
+    </div>
+    {% endif %}
+
+    <div class="feedback-card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="rating-section">
+                <div class="star-rating" data-field="overall_rating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <div class="star-label">{{ form.overall_rating.label }}</div>
+                <input type="hidden" name="overall_rating" id="id_overall_rating" value="">
+            </div>
+
+            <div class="rating-section">
+                <label class="rating-label">{{ form.service_quality.label }}</label>
+                {{ form.service_quality }}
+            </div>
+
+            <div class="rating-section">
+                <label class="rating-label">{{ form.pig_quality.label }}</label>
+                {{ form.pig_quality }}
+            </div>
+
+            <div class="rating-section">
+                <label class="rating-label">{{ form.delivery_experience.label }}</label>
+                {{ form.delivery_experience }}
+            </div>
+
+            <div class="rating-section">
+                <label class="rating-label">{{ form.comments.label }}</label>
+                {{ form.comments }}
+            </div>
+
+            <div class="form-check">
+                {{ form.would_recommend }}
+                <label class="form-check-label" for="{{ form.would_recommend.id_for_label }}">
+                    {{ form.would_recommend.label }}
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+            </button>
+        </form>
+
+        <a href="{% url 'home' %}" class="btn-skip">
+            <i class="fas fa-times me-2"></i>Skip for Now
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle star rating for overall experience only
+    const starRating = document.querySelector('.star-rating[data-field="overall_rating"]');
+    
+    if (starRating) {
+        const stars = starRating.querySelectorAll('.star');
+        const hiddenInput = document.getElementById('id_overall_rating');
+        
+        stars.forEach((star, index) => {
+            // Click event to set rating
+            star.addEventListener('click', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                hiddenInput.value = value;
+                
+                // Update visual state
+                updateStars(stars, value);
+                
+                // Add visual feedback to container
+                const container = starRating.parentElement;
+                if (value >= 4) {
+                    container.style.borderColor = '#22c55e';
+                    container.style.backgroundColor = '#f0fdf4';
+                } else if (value >= 3) {
+                    container.style.borderColor = '#f59e0b';
+                    container.style.backgroundColor = '#fffbeb';
+                } else if (value > 0) {
+                    container.style.borderColor = '#ef4444';
+                    container.style.backgroundColor = '#fef2f2';
+                }
+            });
+            
+            // Hover effects
+            star.addEventListener('mouseenter', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                highlightStars(stars, value);
+            });
+            
+            star.addEventListener('mouseleave', function() {
+                const currentValue = parseInt(hiddenInput.value) || 0;
+                updateStars(stars, currentValue);
+            });
+        });
+    }
+    
+    // Handle dropdown selects for other rating fields
+    const selects = document.querySelectorAll('select[id*="rating"]:not(#id_overall_rating)');
+    
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            const value = parseInt(this.value);
+            const container = this.parentElement;
+            
+            // Add visual feedback for rating selection
+            if (value >= 4) {
+                container.style.borderColor = '#22c55e';
+                container.style.backgroundColor = '#f0fdf4';
+            } else if (value >= 3) {
+                container.style.borderColor = '#f59e0b';
+                container.style.backgroundColor = '#fffbeb';
+            } else if (value > 0) {
+                container.style.borderColor = '#ef4444';
+                container.style.backgroundColor = '#fef2f2';
+            } else {
+                container.style.borderColor = '#e2e8f0';
+                container.style.backgroundColor = '#f8fafc';
+            }
+        });
+    });
+    
+    function updateStars(stars, value) {
+        stars.forEach((star, index) => {
+            if (index < value) {
+                star.classList.add('active');
+                star.classList.remove('hover');
+            } else {
+                star.classList.remove('active', 'hover');
+            }
+        });
+    }
+    
+    function highlightStars(stars, value) {
+        stars.forEach((star, index) => {
+            if (index < value) {
+                star.classList.add('hover');
+            } else {
+                star.classList.remove('hover');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}View Reservation - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e !important;
+        color: white;
+        padding: 40px 0;
+        margin: -20px -20px 40px -20px;
+        border-radius: 0 0 25px 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .back-btn {
+        background: white;
+        color: #22c55e;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+    }
+    
+    .back-btn:hover {
+        background: rgba(255, 255, 255, 0.9);
+        color: #22c55e;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: none;
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .card-header-custom {
+        background: #f8f9fa !important;
+        color: #000 !important;
+        font-weight: 600;
+        padding: 25px 30px;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 1.2rem;
+    }
+    
+    .card-body-custom {
+        padding: 30px;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        color: #495057;
+        margin-bottom: 20px;
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .pig-info {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-left: 5px solid #22c55e;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-accepted {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .status-completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .status-cancelled {
+        background: #fecaca;
+        color: #dc2626;
+    }
+    
+    .proof-image {
+        max-width: 200px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="page-title">
+                    <i class="fas fa-eye me-3"></i>View Reservation
+                </h1>
+                <a href="javascript:history.back()" class="back-btn">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {% if reservation.pig %}
+            <div class="pig-info">
+                <h6 class="mb-3"><i class="fas fa-piggy-bank me-2"></i>Pig Information</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Breed:</strong> {{ reservation.pig.breed }}<br>
+                        <strong>Age:</strong> {{ reservation.pig.get_age_display }}<br>
+                        <strong>Weight:</strong> {{ reservation.pig.weight_kg }} kg
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Sex:</strong> {{ reservation.pig.get_sex_display }}<br>
+                        <strong>Price:</strong> ₱{{ reservation.pig.price|floatformat:0 }}<br>
+                        <strong>Status:</strong> {% if reservation.pig.is_available %}Available{% else %}Reserved{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="info-card">
+                <div class="card-header-custom">
+                    <i class="fas fa-user me-2"></i>Reservation Details
+                    <span class="status-badge status-{{ reservation.status }} ms-3">
+                        {{ reservation.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body-custom">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value">{{ reservation.fullname }}</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">{{ reservation.email }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Contact Number</div>
+                            <div class="info-value">{{ reservation.contact_number }}</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Address</div>
+                            <div class="info-value">{{ reservation.address }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Delivery Date</div>
+                            <div class="info-value">
+                                {% if reservation.delivery_date %}
+                                    {{ reservation.delivery_date|date:"F d, Y" }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Delivery Time</div>
+                            <div class="info-value">
+                                {% if reservation.delivery_time %}
+                                    {{ reservation.delivery_time|time:"g:i A" }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Payment Method</div>
+                            <div class="info-value">{{ reservation.get_payment_method_display }}</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-label">Reservation Date</div>
+                            <div class="info-value">{{ reservation.created_at|date:"F d, Y g:i A" }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if reservation.proof_of_payment %}
+                    <div class="mb-3">
+                        <div class="info-label">Proof of Payment</div>
+                        <div class="info-value">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ reservation.proof_of_payment.url }}" alt="Proof of Payment" class="proof-image">
+                                <div>
+                                    <a href="{{ reservation.proof_of_payment.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-external-link-alt me-1"></i>View Full Size
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if reservation.notes %}
+                    <div class="mb-3">
+                        <div class="info-label">Notes</div>
+                        <div class="info-value">{{ reservation.notes }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

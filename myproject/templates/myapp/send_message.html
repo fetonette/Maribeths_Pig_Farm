@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Send Message - Pig Farm{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e !important;
+        color: white !important;
+        padding: 40px 0;
+        margin: -20px -20px 40px -20px;
+        border-radius: 0 0 25px 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    .form-control, .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25) !important;
+    }
+    .btn-send {
+        background: #22c55e;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.2s ease;
+    }
+    .btn-send:hover {
+        background: #16a34a;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+    .btn-cancel {
+        background: #6b7280;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+        margin-right: 15px;
+    }
+    .btn-cancel:hover {
+        background: #4b5563;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+    .help-text {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 30px;
+    }
+    .help-text i {
+        color: #0ea5e9;
+        margin-right: 10px;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <h1 class="page-title">
+                <i class="fas fa-paper-plane me-3"></i>Send Message to Admin
+            </h1>
+            <p class="mb-0 mt-2" style="opacity: 0.9; font-size: 1.1rem;">Get help and information from our team</p>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <div class="help-text">
+            <i class="fas fa-info-circle"></i>
+            <strong>Need help?</strong> Use this form to contact our admin team. We'll get back to you as soon as possible with the information you need.
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label for="subject" class="form-label">What is this about?</label>
+                <select name="subject" id="subject" class="form-select" required>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Order Information">Order Information</option>
+                    <option value="Pig Information">Pig Information</option>
+                    <option value="Delivery & Pickup">Delivery & Pickup</option>
+                    <option value="Payment Issues">Payment Issues</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="message" class="form-label">Your Message</label>
+                <textarea name="message" id="message" class="form-control" rows="5" placeholder="Type your message here..." required></textarea>
+                <small class="text-muted">Please provide as much detail as possible to help us assist you better.</small>
+            </div>
+
+            <div class="text-end">
+                <a href="{% url 'my_messages' %}" class="btn-cancel">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn-send">
+                    <i class="fas fa-paper-plane me-2"></i>Send Message
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

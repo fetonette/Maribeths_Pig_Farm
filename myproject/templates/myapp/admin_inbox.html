@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+
+{% block title %}Inbox - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e !important;
+        color: white !important;
+        padding: 40px 0;
+        margin: -20px -20px 40px -20px;
+        border-radius: 0 0 25px 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .page-tagline {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 10px;
+        font-weight: 400;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .inbox-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin: 0 -20px;
+    }
+    .inbox-header {
+        background: #f8f9fa;
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+    .conversation-list {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    .conversation-item {
+        padding: 20px 25px;
+        border-bottom: 1px solid #f1f3f4;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+    }
+    .conversation-item:hover {
+        background: #f8f9fa;
+        color: inherit;
+        text-decoration: none;
+    }
+    .conversation-item.unread .customer-name {
+        font-weight: 700;
+    }
+    .conversation-item.unread .last-message {
+        font-weight: 600;
+        color: #1f2937;
+    }
+    .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-right: 15px;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+    }
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    .avatar-initials {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+    .avatar .active-indicator {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 14px;
+        height: 14px;
+        background: #00ff41;
+        border: 2px solid white;
+        border-radius: 50%;
+        box-shadow: 0 0 4px rgba(0, 255, 65, 0.5);
+        display: none;
+    }
+    .avatar .active-indicator.online {
+        display: block;
+    }
+    .conversation-content {
+        flex: 1;
+        min-width: 0;
+    }
+    .conversation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    .customer-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1f2937;
+        margin: 0;
+    }
+    .conversation-time {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+    .last-message {
+        color: #6b7280;
+        font-size: 0.9rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin: 0;
+    }
+    .unread-badge {
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 10px;
+        flex-shrink: 0;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6b7280;
+    }
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    .stats-summary {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin: 0 -20px 30px -20px;
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+    }
+    .stat-item {
+        flex: 1;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #22c55e;
+        margin: 0;
+    }
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin: 5px 0 0 0;
+    }
+    @media (max-width: 768px) {
+        .conversation-item {
+            padding: 15px 20px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+        .customer-name {
+            font-size: 1rem;
+        }
+        .stats-summary {
+            flex-direction: column;
+            gap: 20px;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <h1 class="page-title">
+                <i class="fas fa-inbox me-3"></i>Customer Inbox
+            </h1>
+            <p class="page-tagline">Manage customer conversations</p>
+        </div>
+    </div>
+
+    {% if total_unread > 0 or conversations %}
+    <div class="stats-summary">
+        <div class="stat-item">
+            <div class="stat-number">{{ conversations|length }}</div>
+            <div class="stat-label">Total Conversations</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">{{ total_unread }}</div>
+            <div class="stat-label">Unread Messages</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="inbox-container">
+        <div class="inbox-header">
+            <h3 class="mb-0">
+                <i class="fas fa-comments me-2"></i>All Conversations
+            </h3>
+            {% if total_unread > 0 %}
+            <span class="badge bg-danger">{{ total_unread }} unread</span>
+            {% endif %}
+        </div>
+
+        <div class="conversation-list">
+            {% if conversations %}
+                {% for conversation in conversations %}
+                <a href="{% url 'admin_conversation' conversation.id %}" class="conversation-item {% if conversation.unread_count > 0 %}unread{% endif %}">
+                    <div class="avatar">
+                        {% if conversation.user.userprofile and conversation.user.userprofile.profile_photo %}
+                            <img src="{{ conversation.user.userprofile.profile_photo.url }}" alt="{{ conversation.user.get_full_name|default:conversation.user.username }}">
+                        {% else %}
+                            <div class="avatar-initials">
+                                {{ conversation.user.first_name|first|default:conversation.user.username|first|upper }}
+                            </div>
+                        {% endif %}
+                        <div class="active-indicator" data-user-id="{{ conversation.user.id }}"></div>
+                    </div>
+                    <div class="conversation-content">
+                        <div class="conversation-header">
+                            <h5 class="customer-name">
+                                {{ conversation.user.get_full_name|default:conversation.user.username }}
+                            </h5>
+                            <span class="conversation-time">
+                                {% if conversation.get_latest_message %}
+                                    {{ conversation.get_latest_message.created_at|timesince }} ago
+                                {% else %}
+                                    {{ conversation.created_at|timesince }} ago
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="last-message">
+                            {% if conversation.get_latest_message %}
+                                {% if conversation.get_latest_message.sender == 'admin' %}
+                                    <i class="fas fa-reply me-1"></i>You: {{ conversation.get_latest_message.message|truncatechars:60 }}
+                                {% else %}
+                                    {{ conversation.get_latest_message.message|truncatechars:60 }}
+                                {% endif %}
+                            {% else %}
+                                {{ conversation.subject }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if conversation.unread_count > 0 %}
+                    <div class="unread-badge">{{ conversation.unread_count }}</div>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h4>No Conversations</h4>
+                <p>No customer conversations yet. Messages will appear here when customers contact you.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to check user active status
+    function checkUserActiveStatus() {
+        const indicators = document.querySelectorAll('.active-indicator[data-user-id]');
+        
+        indicators.forEach(indicator => {
+            const userId = indicator.getAttribute('data-user-id');
+            
+            // Check if user is active (you can implement your own logic here)
+            // For now, we'll simulate checking user activity
+            fetch(`/api/user-status/${userId}/`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_online) {
+                    indicator.classList.add('online');
+                } else {
+                    indicator.classList.remove('online');
+                }
+            })
+            .catch(error => {
+                // Hide indicator on error
+                indicator.classList.remove('online');
+            });
+        });
+    }
+    
+    // Check status immediately
+    checkUserActiveStatus();
+    
+    // Check status every 30 seconds
+    setInterval(checkUserActiveStatus, 30000);
+});
+</script>
+{% endblock %}

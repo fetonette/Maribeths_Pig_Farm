@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - Maribeth Pig Farm{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-radius: 0 0 25px 25px;
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
+    }
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .modern-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    .card-header-modern {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 2px solid #e9ecef;
+        padding: 20px 25px;
+        font-weight: 700;
+        color: #1a202c;
+        font-size: 1.1rem;
+    }
+    .card-body-modern {
+        padding: 30px;
+    }
+    .form-label-modern {
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 8px;
+    }
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    .form-control:focus {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25) !important;
+    }
+    .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    .form-select:focus {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25) !important;
+    }
+    .alert-modern {
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        border: none;
+    }
+    .alert-info-modern {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        color: #1565c0;
+        border-left: 4px solid #2196f3;
+    }
+    .btn-modern-primary {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+    }
+    .btn-modern-primary:hover {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(34, 197, 94, 0.4);
+        color: white;
+    }
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    .order-item:last-child {
+        border-bottom: none;
+    }
+    .item-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+    .item-placeholder {
+        width: 60px;
+        height: 60px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #dee2e6;
+    }
+    .item-details {
+        flex: 1;
+    }
+    .item-name {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    .item-info {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .item-price {
+        font-weight: 700;
+        color: #22c55e;
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    .summary-total {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #22c55e;
+        border-top: 2px solid #22c55e;
+        margin-top: 15px;
+        padding-top: 15px;
+    }
+    .btn-place-order {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        width: 100%;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+    }
+    .btn-place-order:hover {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    .btn-back-cart {
+        padding: 8px 16px !important;
+        font-size: 0.9rem !important;
+        border-radius: 8px !important;
+        margin-top: 8px !important;
+    }
+    @media (max-width: 768px) {
+        .checkout-container {
+            grid-template-columns: 1fr;
+        }
+        .btn-back-cart {
+            padding: 6px 12px !important;
+            font-size: 0.85rem !important;
+        }
+    }
+    
+    /* Hide number input spinners */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    
+    input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <h1 class="page-title">
+                <i class="fas fa-credit-card me-3"></i>Checkout
+            </h1>
+            <a href="{% url 'view_cart' %}" class="btn btn-outline-light btn-back-cart">
+                <i class="fas fa-arrow-left me-2"></i>Back to Cart
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="modern-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-receipt me-2"></i>Order Summary
+                </div>
+                <div class="card-body-modern">
+                    <div class="order-items">
+                        {% for item in cart_items %}
+                        <div class="order-item">
+                            <div class="item-image-container">
+                                {% if item.pig.picture %}
+                                    <img src="{{ item.pig.picture.url }}" alt="{{ item.pig.breed }}" class="item-image">
+                                {% else %}
+                                    <div class="item-placeholder">
+                                        <i class="fas fa-piggy-bank text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="item-details">
+                                <div class="item-name">{{ item.pig.breed }}</div>
+                                <div class="item-info">
+                                    {{ item.pig.get_age_display }}
+                                </div>
+                            </div>
+                            <div class="item-price">₱{{ item.get_total_price|floatformat:0 }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="summary-section mt-4">
+                        <div class="summary-row">
+                            <span>Subtotal ({{ total_items }} items):</span>
+                            <span>₱{{ total_price|floatformat:0 }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Delivery Fee:</span>
+                            <span id="delivery-fee-display">₱0</span>
+                        </div>
+                        <div class="summary-row summary-total">
+                            <span>Total:</span>
+                            <span id="final-total-display">₱{{ total_price|floatformat:0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 10px;">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Your order will be processed immediately. Expected delivery/pickup within 2-4 days.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Checkout Form -->
+        <div class="col-md-8">
+            <div class="modern-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-user me-2"></i>Checkout Details
+                </div>
+                <div class="card-body-modern">
+                    <div class="alert-modern alert-info-modern" id="checkout-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Checkout:</strong> Complete your immediate purchase. No downpayment required<span id="payment-info" style="display: none;"> - <span id="payment-text">full payment will be collected during delivery/pickup</span></span>.
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% for item_id in selected_item_ids %}
+                        <input type="hidden" name="selected_items" value="{{ item_id }}">
+                        {% endfor %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.fullname.id_for_label }}" class="form-label form-label-modern">Full Name</label>
+                                {{ form.fullname }}
+                                {% if form.fullname.errors %}
+                                    <div class="text-danger small">{{ form.fullname.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.contact_number.id_for_label }}" class="form-label form-label-modern">Contact Number</label>
+                                {{ form.contact_number }}
+                                {% if form.contact_number.errors %}
+                                    <div class="text-danger small">{{ form.contact_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.address.id_for_label }}" class="form-label form-label-modern">Address</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger small">{{ form.address.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.delivery_option.id_for_label }}" class="form-label form-label-modern">Delivery Option</label>
+                                {{ form.delivery_option }}
+                                {% if form.delivery_option.errors %}
+                                    <div class="text-danger small">{{ form.delivery_option.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.payment_method.id_for_label }}" class="form-label form-label-modern">Payment Method</label>
+                                {{ form.payment_method }}
+                                {% if form.payment_method.errors %}
+                                    <div class="text-danger small">{{ form.payment_method.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.pickup_time.id_for_label }}" class="form-label form-label-modern">Pickup/Delivery Time</label>
+                            {{ form.pickup_time }}
+                            {% if form.pickup_time.errors %}
+                                <div class="text-danger small">{{ form.pickup_time.errors }}</div>
+                            {% endif %}
+                            <div class="text-muted small mt-1">Please specify your preferred time for pickup or delivery (within 2-4 days).</div>
+                        </div>
+
+                        <button type="submit" class="btn-modern-primary w-100" id="place-order-btn">
+                            <i class="fas fa-check me-2"></i>Place Order (₱{{ total_price|floatformat:0 }})
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Pass total price from Django to JavaScript
+    window.totalPrice = parseFloat('{{ total_price }}');
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deliveryOptionField = document.querySelector('select[name="delivery_option"]');
+    const paymentMethodField = document.querySelector('select[name="payment_method"]');
+    const deliveryFeeDisplay = document.getElementById('delivery-fee-display');
+    const finalTotalDisplay = document.getElementById('final-total-display');
+    const placeOrderBtn = document.getElementById('place-order-btn');
+    const paymentInfoSpan = document.getElementById('payment-info');
+    const paymentTextSpan = document.getElementById('payment-text');
+    const subtotal = window.totalPrice;
+    
+    
+    function updateDeliveryFee() {
+        const selectedOption = deliveryOptionField.value;
+        let deliveryFee = 0;
+        
+        if (selectedOption === 'home') {
+            deliveryFee = 125;
+        } else if (selectedOption === 'pickup') {
+            deliveryFee = 0;
+        }
+        
+        const finalTotal = subtotal + deliveryFee;
+        
+        // Update displays
+        deliveryFeeDisplay.textContent = '₱' + deliveryFee;
+        finalTotalDisplay.textContent = '₱' + finalTotal.toLocaleString();
+        placeOrderBtn.innerHTML = '<i class="fas fa-check me-2"></i>Place Order (₱' + finalTotal.toLocaleString() + ')';
+    }
+    
+    function updatePaymentMessage() {
+        const selectedPaymentMethod = paymentMethodField.value;
+        
+        if (selectedPaymentMethod && selectedPaymentMethod !== '') {
+            // Show payment info when a method is selected
+            paymentInfoSpan.style.display = 'inline';
+            
+            if (selectedPaymentMethod === 'gcash') {
+                paymentTextSpan.textContent = 'pay via GCash during checkout process';
+            } else if (selectedPaymentMethod === 'cash') {
+                paymentTextSpan.textContent = 'full payment will be collected during delivery/pickup';
+            }
+        } else {
+            // Hide payment info when no method is selected
+            paymentInfoSpan.style.display = 'none';
+        }
+    }
+    
+    // Update on page load
+    updateDeliveryFee();
+    updatePaymentMessage();
+    
+    // Update when delivery option changes
+    deliveryOptionField.addEventListener('change', updateDeliveryFee);
+    
+    // Update when payment method changes
+    if (paymentMethodField) {
+        paymentMethodField.addEventListener('change', updatePaymentMessage);
+    }
+    
+});
+</script>
+
+{% endblock %}

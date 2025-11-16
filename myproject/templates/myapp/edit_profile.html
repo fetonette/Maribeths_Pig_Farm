@@ -1,0 +1,395 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<style>
+    .edit-header {
+        background: #22c55e !important;
+        color: white !important;
+        padding: 40px 0;
+        margin: -20px -20px 40px -20px;
+        border-radius: 0 0 25px 25px;
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+    }
+    
+    .edit-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 30px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .form-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-body {
+        padding: 40px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        font-size: 0.9rem;
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 15px 20px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .form-control:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25);
+        background: white;
+    }
+    
+    .form-control:hover {
+        border-color: #22c55e;
+        background: white;
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+        font-style: italic;
+    }
+    
+    .required-field::after {
+        content: ' *';
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 40px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+        min-width: 150px;
+        justify-content: center;
+    }
+    
+    .btn-save {
+        background: #22c55e !important;
+        color: white !important;
+        border: 2px solid #22c55e !important;
+    }
+    
+    .btn-save:hover {
+        background: #16a34a !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        color: white !important;
+        border-color: #16a34a !important;
+    }
+    
+    .btn-cancel {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+    }
+    
+    .btn-cancel:hover {
+        background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(108, 117, 125, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .profile-preview {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 30px;
+        border: 2px dashed #dee2e6;
+    }
+    
+    .preview-avatar {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 2rem;
+        margin: 0 auto 15px auto;
+    }
+    
+    .preview-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    
+    .preview-username {
+        color: #6c757d;
+        font-size: 1rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .btn-back-profile:hover {
+        background: rgba(255, 255, 255, 1) !important;
+        border-color: rgba(255, 255, 255, 1) !important;
+        color: #16a34a !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    @media (max-width: 768px) {
+        .edit-title {
+            font-size: 2rem;
+        }
+        
+        .form-body {
+            padding: 30px 20px;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-action {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="edit-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="edit-title">
+                        <i class="fas fa-user-edit me-3"></i>Edit Profile
+                    </h1>
+                </div>
+                <div>
+                    <a href="{% url 'user_profile' %}" class="btn btn-light" style="background: rgba(255, 255, 255, 0.95) !important; border: 2px solid rgba(255, 255, 255, 0.8) !important; color: #22c55e !important; font-weight: 600 !important; padding: 12px 24px !important; border-radius: 8px !important; text-decoration: none !important;">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Profile Preview -->
+                <div class="profile-preview">
+                    <div class="preview-avatar" id="previewAvatar">
+                        {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+                    </div>
+                    <div class="preview-name" id="previewName">{{ profile.first_name }} {{ profile.last_name }}</div>
+                    <div class="preview-username">@{{ user.username }}</div>
+                </div>
+                
+                <!-- Edit Form -->
+                <div class="form-card">
+                    <div class="form-header">
+                        <h3 class="form-title">
+                            <i class="fas fa-edit"></i>
+                            Personal Information
+                        </h3>
+                    </div>
+                    
+                    <div class="form-body">
+                        <form method="post" id="profileForm" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="first_name" class="form-label required-field">
+                                        <i class="fas fa-user"></i>First Name
+                                    </label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" 
+                                           value="{{ profile.first_name }}" required>
+                                    <div class="form-text">Your given name</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="last_name" class="form-label required-field">
+                                        <i class="fas fa-user"></i>Last Name
+                                    </label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" 
+                                           value="{{ profile.last_name }}" required>
+                                    <div class="form-text">Your family name</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email" class="form-label required-field">
+                                    <i class="fas fa-envelope"></i>Email Address
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ profile.email }}" required>
+                                <div class="form-text">We'll use this for important notifications</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cellphone_number" class="form-label">
+                                    <i class="fas fa-phone"></i>Phone Number
+                                </label>
+                                <input type="tel" class="form-control" id="cellphone_number" name="cellphone_number" 
+                                       value="{{ profile.cellphone_number }}" placeholder="+63 9XX XXX XXXX">
+                                <div class="form-text">Include country code (e.g., +63 for Philippines)</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="address" class="form-label">
+                                    <i class="fas fa-map-marker-alt"></i> Address
+                                </label>
+                                <textarea class="form-control" id="address" name="address" rows="3" 
+                                          placeholder="Enter your complete address">{{ profile.address }}</textarea>
+                                <div class="form-text">Your complete address for delivery purposes</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="profile_photo" class="form-label">
+                                    <i class="fas fa-camera"></i> Profile Photo
+                                </label>
+                                <input type="file" class="form-control" id="profile_photo" name="profile_photo" accept="image/*">
+                                {% if profile.profile_photo %}
+                                    <div class="current-photo mt-2">
+                                        <small class="text-muted">Current photo:</small>
+                                        <img src="{{ profile.profile_photo.url }}" alt="Current Profile Photo" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%; margin-left: 10px;">
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <a href="{% url 'user_profile' %}" class="btn-action btn-cancel">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn-action btn-save">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Live preview updates
+document.addEventListener('DOMContentLoaded', function() {
+    const firstNameInput = document.getElementById('first_name');
+    const lastNameInput = document.getElementById('last_name');
+    const previewAvatar = document.getElementById('previewAvatar');
+    const previewName = document.getElementById('previewName');
+    
+    function updatePreview() {
+        const firstName = firstNameInput.value.trim();
+        const lastName = lastNameInput.value.trim();
+        
+        // Update avatar initials
+        const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+        previewAvatar.textContent = initials || 'UN';
+        
+        // Update name
+        const fullName = firstName + ' ' + lastName;
+        previewName.textContent = fullName.trim() || 'Unknown User';
+    }
+    
+    firstNameInput.addEventListener('input', updatePreview);
+    lastNameInput.addEventListener('input', updatePreview);
+    
+    // Form validation
+    const form = document.getElementById('profileForm');
+    form.addEventListener('submit', function(e) {
+        const firstName = firstNameInput.value.trim();
+        const lastName = lastNameInput.value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        if (!firstName || !lastName || !email) {
+            e.preventDefault();
+            alert('Please fill in all required fields (First Name, Last Name, and Email).');
+            return false;
+        }
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            e.preventDefault();
+            alert('Please enter a valid email address.');
+            return false;
+        }
+        
+        return true;
+    });
+});
+</script>
+{% endblock %}

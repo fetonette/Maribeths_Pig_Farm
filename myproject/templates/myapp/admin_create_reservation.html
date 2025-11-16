@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Reservation - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e;
+        color: white;
+        padding: 40px 0;
+        margin: -20px -20px 40px -20px;
+    }
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+    .form-section {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .section-title i {
+        color: #22c55e;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    .form-control, .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25);
+    }
+    .btn-success {
+        background: #22c55e;
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-success:hover {
+        background: #16a34a;
+        transform: translateY(-1px);
+    }
+    .btn-secondary {
+        background: #6b7280;
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-1px);
+    }
+    .pig-info {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        display: none;
+    }
+    .pig-info.show {
+        display: block;
+    }
+    .pig-detail {
+        margin-bottom: 8px;
+    }
+    .pig-detail:last-child {
+        margin-bottom: 0;
+    }
+    .pig-detail strong {
+        color: #0369a1;
+    }
+    .required {
+        color: #ef4444;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="page-title">
+                        <i class="fas fa-plus-circle me-3"></i>Create Reservation
+                    </h1>
+                    <p class="mb-0 mt-2" style="opacity: 0.9; font-size: 1.1rem;">Create reservations for face-to-face transactions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form method="post" id="reservationForm">
+            {% csrf_token %}
+            
+            <!-- Pig Selection -->
+            <div class="form-section">
+                <h4 class="section-title">
+                    <i class="fas fa-piggy-bank"></i>
+                    Pig Selection
+                </h4>
+                <div class="row">
+                    <div class="col-md-8">
+                        <label for="pig" class="form-label">Select Pig <span class="required">*</span></label>
+                        <select class="form-select" id="pig" name="pig" required onchange="showPigInfo()">
+                            <option value="">Choose a pig...</option>
+                            {% for pig in available_pigs %}
+                                <option value="{{ pig.id }}" 
+                                        data-breed="{{ pig.breed }}" 
+                                        data-age="{{ pig.get_age_display }}" 
+                                        data-weight="{{ pig.weight_kg }}" 
+                                        data-price="{{ pig.price }}">
+                                    {{ pig.breed }} - {{ pig.get_age_display }} ({{ pig.weight_kg }}kg) - ₱{{ pig.price|floatformat:0 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="pig-info" id="pigInfo">
+                            <div class="pig-detail"><strong>Breed:</strong> <span id="pigBreed">-</span></div>
+                            <div class="pig-detail"><strong>Age:</strong> <span id="pigAge">-</span></div>
+                            <div class="pig-detail"><strong>Weight:</strong> <span id="pigWeight">-</span> kg</div>
+                            <div class="pig-detail"><strong>Price:</strong> ₱<span id="pigPrice">-</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="form-section">
+                <h4 class="section-title">
+                    <i class="fas fa-user"></i>
+                    Customer Information
+                </h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="fullname" class="form-label">Full Name <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="fullname" name="fullname" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="customer_email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="customer_email" name="customer_email" 
+                               placeholder="Optional - for existing/new customer account">
+                        <small class="form-text text-muted">Leave empty to use admin account</small>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <label for="contact_number" class="form-label">Contact Number <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="contact_number" name="contact_number" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="address" class="form-label">Address <span class="required">*</span></label>
+                        <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery & Payment -->
+            <div class="form-section">
+                <h4 class="section-title">
+                    <i class="fas fa-truck"></i>
+                    Delivery & Payment
+                </h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="delivery_option" class="form-label">Delivery Option <span class="required">*</span></label>
+                        <select class="form-select" id="delivery_option" name="delivery_option" required>
+                            <option value="">Choose delivery...</option>
+                            {% for value, label in delivery_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="payment_method" class="form-label">Payment Method <span class="required">*</span></label>
+                        <select class="form-select" id="payment_method" name="payment_method" required>
+                            <option value="">Choose payment...</option>
+                            {% for value, label in payment_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="down_payment" class="form-label">Payment Amount</label>
+                        <input type="number" class="form-control" id="down_payment" name="down_payment" 
+                               min="0" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule & Status -->
+            <div class="form-section">
+                <h4 class="section-title">
+                    <i class="fas fa-calendar-check"></i>
+                    Schedule & Status
+                </h4>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="pickup_date" class="form-label">Pickup/Delivery Date</label>
+                        <input type="date" class="form-control" id="pickup_date" name="pickup_date">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="pickup_time" class="form-label">Pickup/Delivery Time</label>
+                        <input type="time" class="form-control" id="pickup_time" name="pickup_time">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Reservation Status <span class="required">*</span></label>
+                        <select class="form-select" id="status" name="status" required>
+                            {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if value == 'pending' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">
+                            <strong>Note:</strong> Setting status to "Accepted" or "Completed" will mark the pig as unavailable.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'admin_reservation_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save me-2"></i>Create Reservation
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showPigInfo() {
+    const select = document.getElementById('pig');
+    const pigInfo = document.getElementById('pigInfo');
+    const selectedOption = select.options[select.selectedIndex];
+    
+    if (selectedOption.value) {
+        document.getElementById('pigBreed').textContent = selectedOption.dataset.breed;
+        document.getElementById('pigAge').textContent = selectedOption.dataset.age;
+        document.getElementById('pigWeight').textContent = selectedOption.dataset.weight;
+        document.getElementById('pigPrice').textContent = parseFloat(selectedOption.dataset.price).toLocaleString();
+        pigInfo.classList.add('show');
+    } else {
+        pigInfo.classList.remove('show');
+    }
+}
+
+// Form validation
+document.getElementById('reservationForm').addEventListener('submit', function(e) {
+    const pig = document.getElementById('pig').value;
+    const fullname = document.getElementById('fullname').value;
+    const contact = document.getElementById('contact_number').value;
+    const address = document.getElementById('address').value;
+    const delivery = document.getElementById('delivery_option').value;
+    const payment = document.getElementById('payment_method').value;
+    const status = document.getElementById('status').value;
+    
+    if (!pig || !fullname || !contact || !address || !delivery || !payment || !status) {
+        e.preventDefault();
+        alert('Please fill in all required fields.');
+        return false;
+    }
+    
+    return true;
+});
+</script>
+{% endblock %}

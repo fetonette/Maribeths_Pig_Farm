@@ -1,0 +1,892 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}My Orders - Pig Farm{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e !important;
+        color: white !important;
+        padding: 40px 0;
+        margin: -20px -20px 40px -20px;
+        border-radius: 0 0 25px 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .page-tagline {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 10px;
+        font-weight: 400;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        text-align: center;
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+    .stat-label {
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+    .reservation-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+    .table {
+        margin: 0;
+    }
+    .table th {
+        background: #f8f9fa;
+        color: #000000;
+        font-weight: 700;
+        border: none;
+        padding: 15px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .table td {
+        padding: 15px;
+        vertical-align: middle;
+        border-color: #f1f5f9;
+    }
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .status-pending {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+    .status-accepted {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    /* Custom checkbox styling with green checkmark and black box */
+    .payment-status-checkbox {
+        width: 20px !important;
+        height: 20px !important;
+        transform: scale(1.2) !important;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        border: 2px solid #000000;
+        border-radius: 3px;
+        background-color: #ffffff;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .payment-status-checkbox:checked {
+        background-color: #000000;
+        border-color: #000000;
+    }
+    
+    .payment-status-checkbox:checked::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #00ff00;
+        font-size: 16px;
+        font-weight: 900;
+        text-shadow: 0 0 2px #00ff00;
+    }
+    
+    .payment-status-checkbox:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    .delivery-badge {
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline;
+    }
+    .delivery-home {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+    .delivery-pickup {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+    .btn-action {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border: none;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        margin: 2px;
+        cursor: pointer;
+        position: relative;
+        z-index: 10;
+        white-space: nowrap;
+        min-width: 70px;
+        justify-content: center;
+        box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .btn-action:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3) !important;
+    }
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+    }
+    
+    /* Custom Confirmation Modal */
+    .custom-confirm-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .custom-confirm-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .custom-confirm-modal {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        max-width: 500px;
+        width: 90%;
+        overflow: hidden;
+        transform: translateY(-30px);
+        transition: transform 0.3s ease;
+    }
+    
+    .custom-confirm-overlay.show .custom-confirm-modal {
+        transform: translateY(0);
+    }
+    
+    .custom-confirm-header {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        padding: 25px 30px;
+        text-align: center;
+    }
+    
+    .confirm-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 1.8rem;
+    }
+    
+    .custom-confirm-header h3 {
+        margin: 0 0 8px 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .custom-confirm-header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .custom-confirm-body {
+        padding: 30px;
+        text-align: center;
+    }
+    
+    .order-info {
+        background: #fef3f2;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .order-info i {
+        color: #ef4444;
+        font-size: 1.2rem;
+        margin-right: 10px;
+    }
+    
+    .custom-confirm-footer {
+        padding: 20px 30px 30px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .confirm-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 130px;
+        justify-content: center;
+    }
+    
+    .confirm-cancel {
+        background: #f8fafc;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+    
+    .confirm-cancel:hover {
+        background: #f1f5f9;
+        color: #475569;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .confirm-delete {
+        background: #ef4444;
+        color: white;
+        border: 2px solid #ef4444;
+    }
+    
+    .confirm-delete:hover {
+        background: #dc2626;
+        border-color: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6b7280;
+    }
+    .empty-icon {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 20px;
+    }
+    .btn-new-reservation {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    .btn-new-reservation:hover {
+        background: #16a34a;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+    
+    /* Animation keyframes */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Table row stagger animation */
+    .table tbody tr {
+        animation: fadeInRow 0.5s ease-out forwards;
+        opacity: 0;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    @keyframes fadeInRow {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .table tbody tr:hover {
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+    }
+    
+    /* Stagger delay for each row */
+    .table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <h1 class="page-title">
+                <i class="fas fa-list-alt me-3"></i>My Orders
+            </h1>
+            <p class="page-tagline">Track your pig purchases & delivery status</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    {% if reservations %}
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-check" style="color: #3b82f6;"></i>
+            </div>
+            <div class="stat-number" style="color: #3b82f6;">{{ accepted_count }}</div>
+            <div class="stat-label">Total Reservations</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock" style="color: #f59e0b;"></i>
+            </div>
+            <div class="stat-number" style="color: #f59e0b;">{{ pending_count }}</div>
+            <div class="stat-label">Pending</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-trophy" style="color: #8b5cf6;"></i>
+            </div>
+            <div class="stat-number" style="color: #8b5cf6;" id="completed-count">
+                0
+            </div>
+            <div class="stat-label">Completed Orders</div>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Active Orders Table -->
+    <div class="reservation-table" style="margin-bottom: 40px;">
+        <div style="background: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e5e7eb;">
+            <h4 style="margin: 0; color: #1f2937; font-weight: 700;">
+                <i class="fas fa-clock me-2" style="color: #f59e0b;"></i>Active Orders
+            </h4>
+            <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 0.9rem;">Orders that are pending or in progress</p>
+        </div>
+        {% if reservations %}
+            {% with active_orders=reservations|dictsort:"status" %}
+            {% if active_orders %}
+            <table class="table table-hover">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">PAID</th>
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">CUSTOMER<br><span style="font-size: 0.75rem; color: #6b7280;">NAME</span></th>
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">PIG<br><span style="font-size: 0.75rem; color: #6b7280;">DETAILS</span></th>
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">CONTACT</th>
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">ADDRESS</th>
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">DELIVERY</th>
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">PAYMENT</th>
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">STATUS</th>
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">DATE</th>
+                        <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in active_orders %}
+                    {% if reservation.status != 'completed' %}
+                    <tr>
+                        <td style="text-align: center;">
+                            {% if user.is_staff or user.is_superuser %}
+                            <input type="checkbox" 
+                                   class="payment-status-checkbox" 
+                                   data-reservation-id="{{ reservation.id }}"
+                                   {% if reservation.is_paid %}checked{% endif %}
+                                   style="cursor: pointer;">
+                            {% else %}
+                            <input type="checkbox" 
+                                   class="payment-status-checkbox" 
+                                   data-reservation-id="{{ reservation.id }}"
+                                   {% if reservation.is_paid %}checked{% endif %}
+                                   disabled
+                                   style="cursor: not-allowed;">
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <strong>{{ reservation.fullname }}</strong>
+                        </td>
+                        <td style="text-align: center;">
+                            <div>
+                                <strong>{{ reservation.pig.breed }}</strong>
+                                <br><small class="text-muted">₱{{ reservation.pig.price|floatformat:0 }}</small>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <strong>{{ reservation.contact_number }}</strong>
+                        </td>
+                        <td style="text-align: center;">
+                            {{ reservation.address|truncatechars:40 }}
+                        </td>
+                        <td style="text-align: center;">
+                            {{ reservation.get_delivery_option_display }}
+                        </td>
+                        <td style="text-align: center;">
+                            <div>
+                                {{ reservation.get_payment_method_display }}
+                                {% if reservation.down_payment > 0 %}
+                                    <br><small class="text-success fw-bold">
+                                        {% if reservation.down_payment >= reservation.pig.price %}
+                                            Full Payment: ₱{{ reservation.down_payment|floatformat:0|intcomma }}
+                                        {% else %}
+                                            Down Payment: ₱{{ reservation.down_payment|floatformat:0|intcomma }}
+                                        {% endif %}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="status-badge status-{{ reservation.status }}">
+                                {% if reservation.status == 'pending' %}
+                                    PENDING
+                                {% elif reservation.status == 'accepted' %}
+                                    ACCEPTED
+                                {% else %}
+                                    {{ reservation.get_status_display|upper }}
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td style="text-align: center;">{{ reservation.created_at|date:"M d, Y" }}</td>
+                        <td style="text-align: center;">
+                            <div class="d-flex flex-column gap-1 align-items-center" style="min-width: 120px;">
+                                {% if reservation.proof_of_payment %}
+                                <a href="{{ reservation.proof_of_payment.url }}" target="_blank" class="btn-action" 
+                                   style="background: #f97316;">
+                                    <i class="fas fa-file-image me-1"></i>Proof
+                                </a>
+                                {% endif %}
+                                {% if reservation.status == 'pending' %}
+                                <a href="{% url 'customer_reservation_edit' reservation.id %}" class="btn-action">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </a>
+                                <a href="{% url 'customer_reservation_delete' reservation.id %}" class="btn-action btn-danger">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                                {% else %}
+                                <span class="btn-action btn-disabled" style="background: #e5e7eb; color: #9ca3af; cursor: not-allowed;">
+                                    <i class="fas fa-ban me-1"></i>Cancel
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>No Active Orders</h3>
+                <p>You don't have any active orders at the moment.</p>
+            </div>
+            {% endif %}
+            {% endwith %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-calendar-times"></i>
+            </div>
+            <h3>No Reservations Yet</h3>
+            <p>You haven't made any reservations yet. Start by browsing our available pigs and make your first reservation.</p>
+            <a href="{% url 'reservation' %}" class="btn-new-reservation">
+                <i class="fas fa-plus me-2"></i>Make Your First Reservation
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Completed Orders Table -->
+    {% if reservations %}
+    <div class="reservation-table">
+        <div style="background: #f0f9ff; padding: 15px 20px; border-bottom: 1px solid #e5e7eb;">
+            <h4 style="margin: 0; color: #1f2937; font-weight: 700;">
+                <i class="fas fa-check-circle me-2" style="color: #22c55e;"></i>Completed Orders
+            </h4>
+            <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 0.9rem;">Orders that have been successfully completed</p>
+        </div>
+        {% with completed_orders=reservations|dictsort:"status" %}
+        {% if completed_orders %}
+        <table class="table table-hover">
+            <thead>
+                <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">PAID</th>
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">CUSTOMER<br><span style="font-size: 0.75rem; color: #6b7280;">NAME</span></th>
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">PIG<br><span style="font-size: 0.75rem; color: #6b7280;">DETAILS</span></th>
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">CONTACT</th>
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">ADDRESS</th>
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">DELIVERY</th>
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">PAYMENT</th>
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">STATUS</th>
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">DATE</th>
+                    <th style="padding: 15px; font-weight: 700; color: #1f2937; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; border: none; text-align: center;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reservation in completed_orders %}
+                {% if reservation.status == 'completed' %}
+                <tr style="background: #f8fffe; opacity: 0.8;">
+                    <td style="text-align: center;">
+                        <input type="checkbox" 
+                               class="payment-status-checkbox" 
+                               data-reservation-id="{{ reservation.id }}"
+                               checked
+                               disabled
+                               style="cursor: not-allowed; accent-color: #22c55e;">
+                    </td>
+                    <td style="text-align: center;">
+                        <strong>{{ reservation.fullname }}</strong>
+                    </td>
+                    <td style="text-align: center;">
+                        <div>
+                            <strong>{{ reservation.pig.breed }}</strong>
+                            <br><small class="text-muted">₱{{ reservation.pig.price|floatformat:0 }}</small>
+                        </div>
+                    </td>
+                    <td style="text-align: center;">
+                        <strong>{{ reservation.contact_number }}</strong>
+                    </td>
+                    <td style="text-align: center;">
+                        {{ reservation.address|truncatechars:40 }}
+                    </td>
+                    <td style="text-align: center;">
+                        {{ reservation.get_delivery_option_display }}
+                    </td>
+                    <td style="text-align: center;">
+                        <div>
+                            {{ reservation.get_payment_method_display }}
+                            {% if reservation.down_payment > 0 %}
+                                <br><small class="text-success fw-bold">
+                                    {% if reservation.down_payment >= reservation.pig.price %}
+                                        Full Payment: ₱{{ reservation.down_payment|floatformat:0|intcomma }}
+                                    {% else %}
+                                        Down Payment: ₱{{ reservation.down_payment|floatformat:0|intcomma }}
+                                    {% endif %}
+                                </small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td style="text-align: center; color: #166534; font-weight: 600;">
+                        <i class="fas fa-check me-1"></i>COMPLETED
+                    </td>
+                    <td style="text-align: center;">{{ reservation.created_at|date:"M d, Y" }}</td>
+                    <td style="text-align: center;">
+                        <div class="d-flex flex-column gap-1 align-items-center" style="min-width: 120px;">
+                            {% if reservation.proof_of_payment %}
+                            <a href="{{ reservation.proof_of_payment.url }}" target="_blank" class="btn-action" 
+                               style="background: #f97316;">
+                                <i class="fas fa-file-image me-1"></i>Proof
+                            </a>
+                            {% else %}
+                            <span class="text-muted small">No proof uploaded</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>No Completed Orders</h3>
+            <p>You don't have any completed orders yet.</p>
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Custom Confirmation Modal -->
+<div class="custom-confirm-overlay" id="customConfirmOverlay">
+    <div class="custom-confirm-modal">
+        <div class="custom-confirm-header">
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>Cancel Order</h3>
+            <p>Are you sure you want to cancel this order?</p>
+        </div>
+        <div class="custom-confirm-body">
+            <div class="order-info">
+                <i class="fas fa-info-circle"></i>
+                <span>This action cannot be undone. The pig will become available for other customers.</span>
+            </div>
+        </div>
+        <div class="custom-confirm-footer">
+            <button class="confirm-btn confirm-cancel" onclick="closeCustomConfirm()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button class="confirm-btn confirm-delete" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i> Yes, Cancel Order
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentCancelUrl = '';
+
+function updateStatistics() {
+    // Count completed orders by looking for completed status badges
+    let completedCount = 0;
+    
+    // Count rows in completed orders table if it exists
+    const completedTable = document.querySelector('table:has(.status-badge[style*="COMPLETED"])');
+    if (completedTable) {
+        const completedRows = completedTable.querySelectorAll('tbody tr');
+        completedCount = completedRows.length;
+    } else {
+        // Fallback: count completed status badges
+        const allRows = document.querySelectorAll('table tbody tr');
+        allRows.forEach(row => {
+            const statusText = row.textContent;
+            if (statusText.includes('COMPLETED')) {
+                completedCount++;
+            }
+        });
+    }
+    
+    // Update completed count
+    const completedCountElement = document.getElementById('completed-count');
+    if (completedCountElement) {
+        completedCountElement.textContent = completedCount;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate and update statistics
+    updateStatistics();
+    
+    // Add click handlers for cancel buttons
+    const cancelButtons = document.querySelectorAll('a.btn-action.btn-danger');
+    
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Store the URL for later use
+            currentCancelUrl = this.href;
+            
+            // Show custom confirmation modal
+            showCustomConfirm();
+        });
+    });
+    
+    // Ensure buttons are clickable
+    const allActionButtons = document.querySelectorAll('.btn-action');
+    allActionButtons.forEach(button => {
+        button.style.pointerEvents = 'auto';
+        button.style.cursor = 'pointer';
+    });
+    
+    // Handle payment status checkbox changes (admin only)
+    const paymentCheckboxes = document.querySelectorAll('.payment-status-checkbox');
+    paymentCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const reservationId = this.getAttribute('data-reservation-id');
+            const isChecked = this.checked;
+            
+            // Disable checkbox during request
+            this.disabled = true;
+            
+            fetch(`/api/toggle-payment-status/${reservationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update checkbox state to match server response
+                    this.checked = data.is_paid;
+                    // Show success message (optional)
+                    console.log(data.message);
+                } else {
+                    // Revert checkbox state on error
+                    this.checked = !isChecked;
+                    alert('Failed to update payment status: ' + data.message);
+                }
+            })
+            .catch(error => {
+                // Revert checkbox state on error
+                this.checked = !isChecked;
+                alert('Error updating payment status: ' + error.message);
+            })
+            .finally(() => {
+                // Re-enable checkbox
+                this.disabled = false;
+            });
+        });
+    });
+    
+    // Set up confirm delete button
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        if (currentCancelUrl) {
+            window.location.href = currentCancelUrl;
+        }
+    });
+});
+
+function showCustomConfirm() {
+    const overlay = document.getElementById('customConfirmOverlay');
+    overlay.classList.add('show');
+}
+
+function closeCustomConfirm() {
+    const overlay = document.getElementById('customConfirmOverlay');
+    overlay.classList.remove('show');
+    currentCancelUrl = '';
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const overlay = document.getElementById('customConfirmOverlay');
+    if (e.target === overlay) {
+        closeCustomConfirm();
+    }
+});
+
+// Handle payment status checkbox toggle (admin only)
+document.querySelectorAll('.payment-status-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const reservationId = this.getAttribute('data-reservation-id');
+        const isPaid = this.checked;
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        
+        // Send AJAX request to toggle payment status
+        fetch(`/api/toggle-payment-status/${reservationId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({is_paid: isPaid})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message (optional)
+                console.log('Payment status updated successfully');
+            } else {
+                // Revert checkbox if failed
+                this.checked = !isPaid;
+                alert('Error updating payment status: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Revert checkbox if failed
+            this.checked = !isPaid;
+            alert('Error updating payment status. Please try again.');
+        });
+    });
+});
+</script>
+
+{% endblock %}

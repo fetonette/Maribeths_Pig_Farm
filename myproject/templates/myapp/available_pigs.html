@@ -1,0 +1,662 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Available Pigs - Pig Farm{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e;
+        color: white;
+        padding: 40px 0;
+        margin: 0 auto 40px auto;
+        border-radius: 0 0 25px 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        max-width: 1200px;
+        width: 100%;
+    }
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .page-tagline {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 10px;
+        font-weight: 400;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .pig-count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+    }
+    .pig-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;            /* small, even space between cards */
+        margin: 20px auto 0 auto;
+        max-width: 1200px;
+        padding: 0;
+    }
+    .pig-card {
+        background: white;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        backdrop-filter: blur(10px);
+        max-width: none;      /* let card use full column width */
+        width: 100%;
+        margin: 0;            /* no extra centering space inside column */
+    }
+    .pig-card:hover {
+        transform: none; /* prevent movement on hover */
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+        border-color: rgba(40, 167, 69, 0.25);
+    }
+    .listing-badge {
+        position: absolute;
+        top: 0;
+        left: 0;  /* span full card width */
+        right: 0; /* span full card width */
+        background: #4f7f3f;
+        color: #fff;
+        text-align: center;
+        font-weight: 800;
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+        padding: 8px 10px;
+        border-top-left-radius: 12px;   /* match card radius */
+        border-top-right-radius: 12px;  /* match card radius */
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+        z-index: 2;
+    }
+    .listing-thumb { padding-top: 34px; } /* tighten so image sits flush under badge */
+    .listing-img, .listing-placeholder {
+        width: 100%;
+        height: 170px;
+        object-fit: cover;
+        border-radius: 0 0 6px 6px; /* remove top radius to avoid white sliver under badge */
+        display:block;
+    }
+    .listing-placeholder { background: #e9ecef; display:flex; align-items:center; justify-content:center; color:#6c757d; }
+    /* compact meta row */
+    .listing-meta { display:flex; align-items:center; gap: 8px; padding: 6px 10px 0; }
+    .meta-lines { line-height: 1.2; }
+    .meta-line-1 { font-weight: 900; color:#1a202c; font-size: 1.2rem; line-height: 1.05; }
+    .meta-line-2 { color:#2b7a78; font-size: 0.9rem; text-decoration: underline; }
+    .card-content {
+        padding: 6px 10px 10px; /* tighten spacing */
+        background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+    }
+    .breed-title {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: #1a202c;
+        margin: 6px 0 8px;
+        text-align: left;
+        letter-spacing: 0.2px;
+        position: relative;
+    }
+    .breed-title::after { display:none; }
+    .listing-attrs { display:grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0 0 6px; }
+    .attr { display:flex; align-items:center; gap: 6px; color:#2d3748; font-weight:700; font-size:0.85rem; }
+    .attr i { color:#6b7280; }
+    .price-line { font-size: 1.05rem; font-weight: 900; color: #000; letter-spacing: -0.3px; margin: 0 0 4px; }
+    .meta-bottom { padding: 0; }
+    .meta-bottom .left { color:#2d3748; font-weight: 700; font-size: 0.85rem; }
+    .id-line { font-size: 0.86rem; color: #2b7a78; text-decoration: underline; }
+    .action-buttons { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 10px; 
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .btn-reserve, .btn-purchase { 
+        padding: 12px 16px; 
+        font-size: 0.9rem; 
+        border-radius: 10px; 
+        text-decoration: none;
+        text-align: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .btn-reserve {
+        background: #22c55e !important;
+        border: 2px solid #22c55e !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+    }
+    .btn-reserve:hover {
+        background: #16a34a !important;
+        border-color: #16a34a !important;
+        color: white !important;
+        box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+        text-decoration: none;
+    }
+    .btn-purchase {
+        background: #ff6b35 !important;
+        border: 2px solid #ff6b35 !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+    .btn-purchase:hover {
+        background: #e55a2b !important;
+        border-color: #e55a2b !important;
+        color: white !important;
+        box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+        text-decoration: none;
+    }
+    .admin-buttons { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-edit, .btn-delete { 
+        flex: 1; 
+        padding: 6px 10px; 
+        font-size: 0.75rem; 
+        border-radius: 8px; 
+        text-decoration: none; 
+        text-align: center; 
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .btn-edit { 
+        background: #3b82f6 !important; 
+        border: 2px solid #3b82f6 !important; 
+        color: white !important; 
+    }
+    .btn-edit:hover { 
+        background: #2563eb !important; 
+        border-color: #2563eb !important; 
+        color: white !important; 
+        text-decoration: none;
+    }
+    .btn-delete { 
+        background: #ef4444 !important; 
+        border: 2px solid #ef4444 !important; 
+        color: white !important; 
+    }
+    .btn-delete:hover { 
+        background: #dc2626 !important; 
+        border-color: #dc2626 !important; 
+        color: white !important; 
+        text-decoration: none;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #6c757d;
+    }
+    .empty-icon {
+        font-size: 6rem;
+        color: #dee2e6;
+        margin-bottom: 30px;
+    }
+    .empty-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #495057;
+    }
+    .empty-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .search-section {
+        background: white;
+        border-radius: 15px;
+        margin: 0 auto 20px auto;
+        padding: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        max-width: 1200px;
+        width: 100%;
+    }
+    .add-pig-btn:hover {
+        background: rgba(255, 255, 255, 1) !important;
+        border-color: rgba(255, 255, 255, 1) !important;
+        color: #16a34a !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
+        text-decoration: none !important;
+    }
+    .add-pig-btn:active {
+        transform: translateY(0px) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* Responsive styles for mobile devices */
+    @media screen and (max-width: 768px) {
+        .container-fluid {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+        
+        .pig-grid {
+            grid-template-columns: 1fr !important;
+            gap: 15px !important;
+            padding: 0 5px !important;
+        }
+        
+        .pig-card {
+            margin: 0 auto !important;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        
+        .action-buttons {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+            width: 100% !important;
+            margin-top: 15px !important;
+        }
+        
+        .btn-reserve, .btn-purchase {
+            width: 100% !important;
+            padding: 16px 20px !important;
+            font-size: 1.1rem !important;
+            border-radius: 12px !important;
+            min-height: 50px !important;
+            touch-action: manipulation !important;
+            -webkit-tap-highlight-color: transparent !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+            box-sizing: border-box !important;
+        }
+        
+        .btn-reserve:active, .btn-purchase:active {
+            transform: scale(0.95) !important;
+            transition: transform 0.15s ease !important;
+        }
+        
+        .card-content {
+            padding: 10px 16px 20px !important;
+        }
+        
+        .listing-attrs {
+            grid-template-columns: 1fr !important;
+            gap: 6px !important;
+        }
+        
+        .meta-bottom {
+            text-align: left !important;
+        }
+        
+        .page-title {
+            font-size: 2rem !important;
+        }
+        
+        .page-header .d-flex {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 15px !important;
+        }
+        
+        .search-section {
+            margin: 0 5px 15px 5px !important;
+            padding: 15px !important;
+        }
+        
+        .search-section .row .col-md-3 {
+            margin-bottom: 15px !important;
+        }
+        
+        .d-flex.gap-2 {
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+        }
+        
+        .d-flex.gap-2 .btn {
+            flex: 1 !important;
+            min-width: 80px !important;
+        }
+        
+        /* Fix for Bootstrap grid on mobile */
+        .col-md-3 {
+            width: 100% !important;
+            margin-bottom: 15px !important;
+        }
+    }
+    
+    @media screen and (max-width: 480px) {
+        .container-fluid {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+        }
+        
+        .pig-grid {
+            padding: 0 !important;
+            gap: 10px !important;
+        }
+        
+        .btn-reserve, .btn-purchase {
+            font-size: 1rem !important;
+            padding: 18px 16px !important;
+            min-height: 55px !important;
+        }
+        
+        .card-content {
+            padding: 8px 12px 16px !important;
+        }
+        
+        .price-line {
+            font-size: 1.1rem !important;
+        }
+        
+        .meta-line-1 {
+            font-size: 1.4rem !important;
+        }
+        
+        .page-header {
+            padding: 30px 0 !important;
+        }
+        
+        .search-section {
+            margin: 0 0 10px 0 !important;
+            padding: 12px !important;
+        }
+    }
+    
+    /* Universal mobile button fix */
+    @media screen and (max-width: 768px) {
+        a[href*="add_to_cart"], 
+        .btn-reserve, 
+        .btn-purchase {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+        }
+        
+        /* Ensure buttons are clickable on all mobile browsers */
+        .action-buttons a {
+            pointer-events: auto !important;
+            position: relative !important;
+            z-index: 10 !important;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                {% if user.is_superuser or user.is_staff %}
+                <div>
+                    <h1 class="page-title">
+                        <i class="fas fa-piggy-bank me-3" aria-hidden="true"></i>Pig Management
+                    </h1>
+                    <p class="page-tagline">Oversee your livestock inventory & operations</p>
+                </div>
+                <a href="{% url 'admin_pig_add' %}" class="btn btn-light add-pig-btn" style="background: rgba(255, 255, 255, 0.95); border: 2px solid rgba(255, 255, 255, 0.8); color: #22c55e; font-weight: 700; padding: 14px 24px; border-radius: 12px; text-decoration: none; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.9rem;">
+                    <i class="fas fa-plus me-2"></i>Add New Pig
+                </a>
+                {% else %}
+                <div>
+                    <h1 class="page-title">
+                        <i class="fas fa-piggy-bank me-3" aria-hidden="true"></i>Available Pigs
+                    </h1>
+                    <p class="page-tagline">Find your perfect pig for breeding & farming</p>
+                </div>
+                <div class="pig-count">
+                    {{ pigs|length }} pig{{ pigs|length|pluralize }} available
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; border-radius: 15px; margin-bottom: 20px; padding: 15px 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                    <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% elif message.tags == 'info' %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; border-radius: 15px; margin-bottom: 20px; padding: 15px 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                    <i class="fas fa-info-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% else %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="border-radius: 15px; margin-bottom: 20px; padding: 15px 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Filter Buttons -->
+    <div class="search-section">
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="d-flex gap-2 mb-3">
+                    <a href="{% url 'available_pigs' %}" 
+                       class="btn {% if not request.GET.age_filter %}btn-success{% else %}btn-outline-secondary{% endif %}" 
+                       style="font-weight: 600;">
+                        <i class="fas fa-list me-2"></i>All
+                    </a>
+                    <a href="{% url 'available_pigs' %}?age_filter=pigs" 
+                       class="btn {% if request.GET.age_filter == 'pigs' %}btn-success{% else %}btn-outline-secondary{% endif %}" 
+                       style="font-weight: 600;">
+                        <i class="fas fa-piggy-bank me-2"></i>Pigs
+                    </a>
+                    <a href="{% url 'available_pigs' %}?age_filter=piglets" 
+                       class="btn {% if request.GET.age_filter == 'piglets' %}btn-success{% else %}btn-outline-secondary{% endif %}" 
+                       style="font-weight: 600;">
+                        <i class="fas fa-baby me-2"></i>Piglets
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search Form -->
+        <form method="GET" class="row g-3 align-items-end">
+        <input type="hidden" name="age_filter" value="{{ request.GET.age_filter }}">
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Breed</label>
+            <select name="breed" id="breed" class="form-select">
+                <option value="">All Breeds</option>
+                <option value="Yorkshire" {% if search_params.breed == 'Yorkshire' %}selected{% endif %}>Yorkshire</option>
+                <option value="Hampshire" {% if search_params.breed == 'Hampshire' %}selected{% endif %}>Hampshire</option>
+                <option value="Large White" {% if search_params.breed == 'Large White' %}selected{% endif %}>Large White</option>
+                <option value="Landrace" {% if search_params.breed == 'Landrace' %}selected{% endif %}>Landrace</option>
+                <option value="Duroc" {% if search_params.breed == 'Duroc' %}selected{% endif %}>Duroc</option>
+                <option value="Pietrain" {% if search_params.breed == 'Pietrain' %}selected{% endif %}>Pietrain</option>
+                <option value="Chester White" {% if search_params.breed == 'Chester White' %}selected{% endif %}>Chester White</option>
+                <option value="Poland China" {% if search_params.breed == 'Poland China' %}selected{% endif %}>Poland China</option>
+                {% for breed in available_breeds %}
+                    {% if breed not in 'Yorkshire,Hampshire,Large White,Landrace,Duroc,Pietrain,Chester White,Poland China' %}
+                    <option value="{{ breed }}" {% if search_params.breed == breed %}selected{% endif %}>
+                        {{ breed }}
+                    </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Weight (kg)</label>
+            <input type="number" name="min_weight" id="min_weight" class="form-control" 
+                   placeholder="e.g., 30" value="{{ search_params.min_weight }}" min="0" step="0.1">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Age (months)</label>
+            <input type="number" name="max_age" id="max_age" class="form-control" 
+                   placeholder="e.g., 24" value="{{ search_params.max_age }}" min="0">
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn me-2" style="background: #22c55e !important; border: 2px solid #22c55e !important; color: white !important; font-weight: 600;">
+                <i class="fas fa-search me-2"></i>Search
+            </button>
+            <a href="{% url 'available_pigs' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-times me-2"></i>Clear
+            </a>
+        </div>
+        </form>
+    </div>
+    
+    {% if pigs %}
+    <div class="pig-grid">
+        {% for pig in pigs %}
+        <div class="pig-card">
+            <div class="listing-badge">AVAILABLE</div>
+            <div class="listing-thumb">
+                {% if pig.picture %}
+                    <img src="{{ pig.picture.url }}" class="listing-img" alt="{{ pig.breed }}">
+                {% else %}
+                    <div class="listing-placeholder"><i class="fas fa-piggy-bank"></i></div>
+                {% endif %}
+            </div>
+            <div class="listing-meta">
+                <div class="meta-lines">
+                    {% if pig.description %}
+                    <div class="pig-description" style="color: #000000; font-size: 0.85rem; margin-bottom: 6px; line-height: 1.3; font-style: italic; text-align: justify;">
+                        {{ pig.description }}
+                    </div>
+                    {% endif %}
+                    <div class="meta-line-1">{{ pig.breed }}</div>
+                </div>
+            </div>
+            <div class="card-content">
+                <h2 class="breed-title" style="display:none;">{{ pig.breed }}</h2>
+                <div class="price-line">₱{{ pig.price|floatformat:0|intcomma }}</div>
+                <div class="listing-attrs">
+                    <div class="attr">Age: {{ pig.get_age_display }}</div>
+                    <div class="attr">Weight: {{ pig.weight_kg|floatformat:0 }} kg</div>
+                </div>
+                <div class="meta-bottom">
+                    <div class="left">Sex: {{ pig.get_sex_display }}</div>
+                </div>
+                {% if user.is_superuser or user.is_staff %}
+                <div class="admin-buttons">
+                    <a href="{% url 'admin_pig_edit' pig.id %}" class="btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'admin_pig_delete' pig.id %}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this pig?')">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
+                {% else %}
+                <div class="action-buttons" style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 15px;">
+                    <!-- Simple form-based approach for better compatibility -->
+                    <form method="get" action="{% url 'add_to_cart' pig.id %}" style="width: 100%; margin: 0;">
+                        <button type="submit" 
+                                class="btn-reserve mobile-btn" 
+                                style="width: 100%; padding: 16px 20px; font-size: 1rem; border-radius: 12px; min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; background: #22c55e !important; border: 2px solid #22c55e !important; color: white !important; font-weight: 600; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); transition: all 0.3s ease; touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer; user-select: none; -webkit-user-select: none; box-sizing: border-box;">
+                            <i class="fas fa-cart-plus"></i>
+                            Add to Cart
+                        </button>
+                    </form>
+                    
+                    <a href="{% url 'reservation_with_pig' pig.id %}" 
+                       class="btn-reserve mobile-btn" 
+                       style="width: 100%; padding: 16px 20px; font-size: 1rem; border-radius: 12px; min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; background: #6366f1 !important; border: 2px solid #6366f1 !important; color: white !important; font-weight: 600; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.3s ease; touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer; user-select: none; -webkit-user-select: none; box-sizing: border-box;">
+                        <i class="fas fa-calendar-check"></i>
+                        Reserve This Pig
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-piggy-bank"></i>
+        </div>
+        <h2 class="empty-title">No Pigs Available</h2>
+        <p class="empty-description">
+            Currently, there are no pigs available for reservation. Our farm is working hard to bring you quality livestock. Please check back soon for new arrivals!
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Ensure buttons work properly on all devices
+document.addEventListener('DOMContentLoaded', function() {
+    // Add visual feedback for mobile buttons without preventing default behavior
+    const mobileButtons = document.querySelectorAll('.mobile-btn');
+    
+    mobileButtons.forEach(button => {
+        // Touch start event for visual feedback only
+        button.addEventListener('touchstart', function(e) {
+            this.style.transform = 'scale(0.95)';
+            this.style.opacity = '0.8';
+        }, { passive: true });
+        
+        // Touch end event to restore normal appearance
+        button.addEventListener('touchend', function(e) {
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+                this.style.opacity = '1';
+            }, 100);
+        }, { passive: true });
+        
+        // Mouse events for desktop
+        button.addEventListener('mousedown', function(e) {
+            this.style.transform = 'scale(0.95)';
+        });
+        
+        button.addEventListener('mouseup', function(e) {
+            this.style.transform = 'scale(1)';
+        });
+        
+        // Ensure the button is clickable
+        button.style.pointerEvents = 'auto';
+        button.style.position = 'relative';
+        button.style.zIndex = '10';
+    });
+});
+
+// Auto-submit form when breed dropdown changes
+document.getElementById('breed').addEventListener('change', function() {
+    // Submit the form automatically when breed is selected
+    this.form.submit();
+});
+
+// Also auto-submit when weight or age inputs change (with a small delay)
+let searchTimeout;
+document.getElementById('min_weight').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        this.form.submit();
+    }, 1000); // Wait 1 second after user stops typing
+});
+
+document.getElementById('max_age').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        this.form.submit();
+    }, 1000); // Wait 1 second after user stops typing
+});
+</script>
+{% endblock %}

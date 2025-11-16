@@ -1,0 +1,3128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %}Pig Farm Management{% endblock %}</title>
+    {% block head %}{% endblock %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        body {
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .app-viewport {
+            width: 100%;
+            min-height: 100vh;
+        }
+        /* Sidebar (Argon-like) */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            height: 100vh !important;
+            min-height: 100% !important;
+            background: #ffffff;
+            transform: scale(1); /* Reset transform for sidebar to prevent double scaling */
+            overflow-y: auto; /* Allow scrolling if content is taller than viewport */
+            overflow-x: hidden;
+            color: #344767;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 220px;
+            min-width: 200px;
+            max-width: 320px;
+            z-index: 1000;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            margin: 0;
+            padding: 16px;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            resize: none;
+        }
+        
+        .sidebar-resizer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            background: transparent;
+            cursor: ew-resize;
+            z-index: 1001;
+            transition: background-color 0.2s ease;
+        }
+        
+        .sidebar-resizer:hover {
+            background: rgba(34, 197, 94, 0.3);
+        }
+        
+        .sidebar-resizer.resizing {
+            background: rgba(34, 197, 94, 0.5);
+        }
+        
+        .sidebar-resize-handle {
+            position: absolute;
+            top: 50%;
+            right: 2px;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .sidebar:hover .sidebar-resize-handle,
+        .sidebar-resizer:hover .sidebar-resize-handle,
+        .sidebar-resizer.resizing .sidebar-resize-handle {
+            opacity: 1;
+        }
+        .sidebar .brand {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            padding: 18px 16px;
+            color: #fff;
+            border-radius: 14px;
+            margin: 10px 10px 14px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+        }
+        .sidebar .brand img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            background: transparent;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            margin-bottom: 4px;
+        }
+        .brand-title {
+            font-weight: 800;
+            font-size: 1.05rem;
+            letter-spacing: 0.4px;
+            margin: 0;
+            text-align: center;
+            width: 100%;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .sidebar hr {
+            margin: 12px 12px;
+            border-color: #eef2f7;
+            opacity: 1;
+        }
+        .section-title {
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            color: #95a1b5;
+            font-weight: 800;
+            padding: 0 20px;
+            margin: 14px 0 8px 0;
+            text-transform: uppercase;
+        }
+        .sidebar .nav {
+            padding: 0 8px 8px 8px;
+            flex: 1;
+        }
+        .sidebar .nav-main {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .sidebar .nav-bottom {
+            margin-top: auto;
+            padding: 8px;
+            border-top: 1px solid #eef2f7;
+        }
+        .sidebar .nav-link {
+            color: #344767cc;
+            padding: 10px 14px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            margin: 4px 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+            color: #5e6e82;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(40, 167, 69, 0.12);
+            color: #2f4f3a;
+            transform: translateX(2px);
+        }
+        .sidebar .nav-link.active {
+            background: rgba(40, 167, 69, 0.15);
+            color: #2f4f3a;
+            box-shadow: inset 0 0 0 1px rgba(40, 167, 69, 0.28);
+        }
+
+        /* Ensure consistent nav link base style (override Bootstrap defaults) */
+        .sidebar nav .nav-link {
+            background: transparent !important;
+            color: #344767cc !important;
+        }
+        /* Hover state (green everywhere) */
+        .sidebar nav .nav-link:hover {
+            background: rgba(40, 167, 69, 0.12) !important;
+            color: #2f4f3a !important;
+        }
+        /* Active state (green everywhere) */
+        .sidebar nav .nav-link.active,
+        .sidebar nav .nav-link[aria-current="page"],
+        .sidebar nav .nav-link:active {
+            background: rgba(40, 167, 69, 0.15) !important;
+            color: #2f4f3a !important;
+            box-shadow: inset 0 0 0 1px rgba(40, 167, 69, 0.28) !important;
+        }
+        /* Remove Bootstrap primary focus ring on links inside sidebar */
+        .sidebar nav .nav-link:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        /* Icon alignment and color consistency */
+        .sidebar nav .nav-link i { 
+            width: 20px; 
+            text-align: center; 
+            font-size: 1rem; 
+            color: #5e6e82 !important; 
+        }
+        /* Tighter section title spacing and consistency */
+        .sidebar .section-title { 
+            margin: 14px 0 8px 0; 
+            padding: 0 20px; 
+            color: #95a1b5; 
+            font-weight: 800; 
+            font-size: 0.72rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+        }
+        /* Uniform spacing between items */
+        .sidebar nav .nav-link + .nav-link { margin-top: 2px; }
+        .sidebar .section-title + .nav-link { margin-top: 6px; }
+
+        /* Sidebar Notifications Trigger */
+        .sidebar-notifications {
+            margin: 4px 8px;
+            padding: 0;
+        }
+        
+        .notification-trigger {
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: #344767;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin: 2px 0;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .notification-trigger:hover {
+            background: rgba(40, 167, 69, 0.12);
+            color: #2f4f3a;
+            transform: translateX(2px);
+        }
+        
+        .notification-trigger.active {
+            background: rgba(40, 167, 69, 0.15) !important;
+            color: #2f4f3a !important;
+            box-shadow: inset 0 0 0 1px rgba(40, 167, 69, 0.28) !important;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .notification-content i {
+            color: #5e6e82 !important;
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .notification-trigger:hover .notification-content i {
+            color: #5e6e82 !important;
+        }
+        
+        .notification-text {
+            flex: 1;
+            color: #344767;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .notification-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .notification-badge.zero {
+            display: none;
+        }
+
+        /* Floating Notification Panel */
+        .floating-notifications {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 350px;
+            max-height: 80vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            transform: translateX(-400px);
+            transition: transform 0.3s ease;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .floating-notifications.show {
+            transform: translateX(0);
+        }
+        
+        
+        .floating-header {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .floating-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-floating {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.2s ease;
+        }
+        
+        .close-floating:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .floating-content {
+            max-height: calc(80vh - 80px);
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .floating-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+        
+        .floating-empty i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .floating-order-item {
+            padding: 20px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s ease;
+        }
+        
+        .floating-order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .floating-order-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .floating-customer {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        
+        .floating-details {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+        
+        .floating-details div {
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .floating-details i {
+            width: 16px;
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+        
+        .floating-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .floating-action-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            justify-content: center;
+            min-height: 40px;
+            white-space: nowrap;
+        }
+        
+        .floating-btn-accept {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .floating-btn-accept:hover {
+            background: #16a34a;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .floating-btn-view {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .floating-btn-view:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .floating-btn-decline {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .floating-btn-decline:hover {
+            background: #dc2626;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Tablet and small desktop responsive */
+        @media (max-width: 1024px) {
+            .floating-notifications {
+                width: 320px;
+            }
+            
+            .floating-action-btn {
+                font-size: 0.8rem;
+                padding: 9px 14px;
+            }
+        }
+        
+        /* Mobile behavior */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+
+            .sidebar {
+                width: 260px;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                height: 100vh;
+                position: fixed;
+                top: 0;
+                left: 0;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1100;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                padding: 16px 12px;
+                box-sizing: border-box;
+                width: 100% !important;
+                min-height: 100vh;
+                overflow-y: auto;
+                position: relative;
+                transform: none;
+            }
+
+            .sidebar-resizer {
+                display: none;
+            }
+
+            .floating-notifications {
+                display: none !important;
+            }
+
+            /* Ensure mobile menu button is visible on small screens */
+            .btn.d-md-none {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .floating-header {
+                padding: 15px;
+            }
+            
+            .floating-order-item {
+                padding: 15px;
+            }
+            
+            .floating-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .floating-action-btn {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+                min-height: 44px;
+            }
+
+            #payment-notification-page {
+                position: relative !important;
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 16px 12px !important;
+            }
+        }
+        .main-content {
+            margin-left: 236px; /* closer to sidebar to reduce left empty space */
+            width: calc(100% - 236px); /* keep content within viewport so it doesn't get cropped on the right */
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            transition: margin-left 0.1s ease;
+        }
+
+        /* Buttons and misc retained */
+        .pig-card { transition: transform 0.2s; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .pig-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+        .login-container { background: transparent; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0; }
+        .login-card { background: white; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); padding: 40px; width: 100%; max-width: 400px; }
+        .btn-primary { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .btn-primary:hover { background: linear-gradient(135deg, #1e7e34 0%, #28a745 100%); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); }
+        
+        /* Custom Confirm Modal */
+        .custom-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .custom-confirm-modal {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 450px;
+            overflow: hidden;
+            animation: modalSlideUp 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .custom-confirm-header {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .confirm-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .confirm-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        .custom-confirm-header h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .custom-confirm-header p {
+            margin: 0;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .custom-confirm-body {
+            padding: 25px 30px;
+        }
+        
+        .order-info {
+            background: #f0f9ff;
+            border: 1px solid #e0f2fe;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #0369a1;
+        }
+        
+        .order-info i {
+            font-size: 1.2rem;
+            color: #0284c7;
+        }
+        
+        .customer-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .customer-details h4 {
+            margin: 0 0 15px 0;
+            color: #1f2937;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .customer-details h4 i {
+            color: #22c55e;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .custom-decline-header {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .decline-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .decline-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        .custom-decline-header h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .custom-decline-header p {
+            margin: 0;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .confirm-decline {
+            background: #ef4444;
+            color: white;
+            border: 2px solid #ef4444;
+        }
+        
+        .confirm-decline:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        
+        /* Order Details Modal */
+        .order-details-modal {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: modalSlideUp 0.3s ease-out;
+        }
+        
+        .order-details-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+        
+        .details-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .details-icon i {
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .order-details-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .close-btn i {
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .order-details-body {
+            padding: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .info-section {
+            margin-bottom: 30px;
+        }
+        
+        .info-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-section h4 {
+            color: #1f2937;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .info-section h4 i {
+            color: #3b82f6;
+            font-size: 1rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .info-item label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-item span {
+            font-size: 1rem;
+            color: #1f2937;
+            font-weight: 500;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .order-details-footer {
+            padding: 20px 30px;
+            background: #f9fafb;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .details-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .details-close {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .details-close:hover {
+            background: #e5e7eb;
+            color: #374151;
+            transform: translateY(-1px);
+        }
+        
+        .details-accept {
+            background: #22c55e;
+            color: white;
+            border: 2px solid #22c55e;
+        }
+        
+        .details-accept:hover {
+            background: #16a34a;
+            border-color: #16a34a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .order-details-modal {
+                width: 95%;
+                max-height: 95vh;
+            }
+            
+            .order-details-header {
+                padding: 20px;
+            }
+            
+            .order-details-body {
+                padding: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-details-footer {
+                padding: 15px 20px;
+                flex-direction: column;
+            }
+        }
+        
+        .custom-confirm-footer {
+            padding: 20px 30px 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .confirm-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 130px;
+            justify-content: center;
+        }
+        
+        .confirm-cancel {
+            background: #f8fafc;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .confirm-cancel:hover {
+            background: #f1f5f9;
+            color: #475569;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .confirm-accept {
+            background: #22c55e;
+            color: white;
+            border: 2px solid #22c55e;
+        }
+        
+        .confirm-accept:hover {
+            background: #16a34a;
+            border-color: #16a34a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Logout Modal Animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Floating Panel Animation */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Payment Notification Page Styles */
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+    </style>
+ </head>
+ <body>
+     {% if user.is_authenticated %}
+    <!-- Mobile menu button -->
+    <button class="btn btn-primary d-md-none position-fixed" style="top: 10px; left: 10px; z-index: 1001;" onclick="toggleMobileSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-resizer" id="sidebarResizer">
+            <div class="sidebar-resize-handle"></div>
+        </div>
+        <div class="brand">
+            <img src="{% static 'images/maribeth-logo.png' %}" alt="Maribeth Pig Farm Logo">
+            <div class="brand-title">Maribeth Pig Farm</div>
+        </div>
+        
+        <nav class="nav flex-column nav-main">
+            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                <i class="fas fa-home"></i> <span>Home</span>
+            </a>
+            
+            {% if user.is_superuser or user.is_staff %}
+            <!-- Pending Orders in Sidebar -->
+            <div class="sidebar-notifications">
+                <div class="notification-trigger" id="notification-trigger">
+                    <div class="notification-content">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-text">Pending Orders</span>
+                        <span class="notification-badge" id="pending-count" style="display: none;"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <a class="nav-link {% if request.resolver_match.url_name == 'available_pigs' %}active{% endif %}" href="{% url 'available_pigs' %}">
+                <i class="fas fa-piggy-bank"></i> <span>Manage Pigs</span>
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin_user_list' %}active{% endif %}" href="{% url 'admin_user_list' %}">
+                <i class="fas fa-users"></i> <span>Manage Customers</span>
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin_reservation_list' %}active{% endif %}" href="{% url 'admin_reservation_list' %}">
+                <i class="fas fa-shopping-cart"></i> <span>Order Management</span>
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin_feedback_list' %}active{% endif %}" href="{% url 'admin_feedback_list' %}">
+                <i class="fas fa-star"></i> <span>Manage Feedback</span>
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'tracking_records' %}active{% endif %}" href="{% url 'tracking_records' %}">
+                <i class="fas fa-chart-line"></i> <span>Tracking Records</span>
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin_inbox' %}active{% endif %}" href="{% url 'admin_inbox' %}">
+                <i class="fas fa-inbox"></i> <span>Inbox</span>
+            </a>
+            {% else %}
+            <a class="nav-link {% if request.resolver_match.url_name == 'available_pigs' %}active{% endif %}" href="{% url 'available_pigs' %}">
+                <i class="fas fa-piggy-bank"></i> <span>Available Pigs</span>
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'view_cart' %}active{% endif %}" href="{% url 'view_cart' %}">
+                <i class="fas fa-shopping-cart"></i> <span>Shopping Cart</span>
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'customer_reservation_list' %}active{% endif %}" href="{% url 'customer_reservation_list' %}">
+                <i class="fas fa-receipt"></i> <span>My Orders</span>
+            </a>
+            
+            <!-- Payment Notification Bell in Sidebar -->
+            <div class="sidebar-notifications">
+                <div class="notification-trigger" id="customer-notification-trigger">
+                    <div class="notification-content">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-text">Notifications</span>
+                        <span class="notification-badge" id="payment-count" style="display: none;">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <a class="nav-link {% if request.resolver_match.url_name == 'my_messages' or request.resolver_match.url_name == 'send_message' %}active{% endif %}" href="{% url 'my_messages' %}">
+                <i class="fas fa-comments"></i> <span>Messages</span>
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'description' %}active{% endif %}" href="{% url 'description' %}">
+                <i class="fas fa-info-circle"></i> <span>About Us</span>
+            </a>
+            {% endif %}
+        </nav>
+        
+        <div class="nav-bottom">
+            <a class="nav-link" href="#" onclick="showLogoutModal()">
+                <i class="fas fa-right-from-bracket"></i> <span>Logout</span>
+            </a>
+        </div>
+    </div>
+    <div class="main-content app-viewport" id="mainContent">
+    {% else %}
+    <div class="login-container">
+    {% endif %}
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Floating Notification Panel -->
+    {% if user.is_superuser or user.is_staff %}
+    <div class="floating-notifications" id="floating-notifications">
+        <div class="floating-header">
+            <h4>
+                <i class="fas fa-bell"></i>
+                Pending Orders
+            </h4>
+            <button class="close-floating" onclick="closeFloatingNotifications()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="floating-content" id="notification-list">
+            <div style="padding: 20px; text-align: center; color: #6b7280;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 10px;"></i>
+                <div>Loading orders...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Accept Order Confirmation Modal -->
+    <div class="accept-modal-overlay" id="acceptModalOverlay" style="display: none;">
+        <div class="accept-modal">
+            <div class="accept-modal-header">
+                <i class="fas fa-check-circle"></i>
+                <h3>Accept Order</h3>
+            </div>
+            <div class="accept-modal-body">
+                <p>Are you sure you want to accept this order?</p>
+                <div class="order-preview" id="orderPreview">
+                    <!-- Order details will be loaded here -->
+                </div>
+            </div>
+            <div class="accept-modal-footer">
+                <button class="modal-btn modal-btn-cancel" onclick="closeAcceptModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="modal-btn modal-btn-accept" id="confirmAcceptBtn">
+                    <i class="fas fa-check"></i> Accept Order
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    
+    <!-- Full Page Payment Notification Interface -->
+    {% if not user.is_staff and not user.is_superuser and user.is_authenticated %}
+    <div id="payment-notification-page" style="display: none; position: relative; top: 0; left: 0; right: 0; background: #f8f9fa; min-height: 100vh; margin-left: 0; padding: 20px; width: 100%; transition: margin-left 0.1s ease;">
+        <div class="container-fluid">
+            <div class="page-header" style="background: #22c55e !important; color: white !important; padding: 40px 0; margin: -20px -20px 40px -20px; border-radius: 0 0 25px 25px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);">
+                <div class="container-fluid">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <h1 class="page-title" style="font-size: 2.5rem; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                                <i class="fas fa-bell me-3"></i>Payment Notifications
+                            </h1>
+                            <p class="page-tagline" style="font-size: 1.1rem; opacity: 0.9; margin-top: 10px; font-weight: 400; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">
+                                Complete your payments to proceed with your orders
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Facebook-Style Notification List -->
+            <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);">
+                <div id="customer-notification-list">
+                    <div style="padding: 40px; text-align: center; color: #6b7280;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <div style="font-size: 1.1rem; font-weight: 600;">Loading notifications...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile sidebar toggle (show/hide)
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        }
+        
+        // Sidebar resize functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const resizer = document.getElementById('sidebarResizer');
+            const mainContent = document.getElementById('mainContent');
+            
+            let isResizing = false;
+            let startX = 0;
+            let startWidth = 0;
+            
+            // Load saved width from localStorage (clamped to compact range)
+            const savedWidth = localStorage.getItem('sidebarWidth');
+            if (savedWidth && window.innerWidth > 768) {
+                const rawWidth = parseInt(savedWidth);
+                const width = Math.min(Math.max(rawWidth, 180), 250);
+                if (width >= 180 && width <= 250) {
+                    sidebar.style.width = width + 'px';
+                    mainContent.style.marginLeft = (width + 16) + 'px'; // width + small gap
+                }
+            }
+            
+            // Mouse down on resizer
+            resizer.addEventListener('mousedown', function(e) {
+                if (window.innerWidth <= 768) return; // Disable on mobile
+                
+                isResizing = true;
+                startX = e.clientX;
+                startWidth = parseInt(document.defaultView.getComputedStyle(sidebar).width, 10);
+                
+                resizer.classList.add('resizing');
+                document.body.style.cursor = 'ew-resize';
+                document.body.style.userSelect = 'none';
+                
+                e.preventDefault();
+            });
+            
+            // Mouse move - resize sidebar
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing || window.innerWidth <= 768) return;
+                
+                const width = startWidth + e.clientX - startX;
+                const minWidth = 180;
+                const maxWidth = 250;
+                
+                if (width >= minWidth && width <= maxWidth) {
+                    sidebar.style.width = width + 'px';
+                    mainContent.style.marginLeft = (width + 16) + 'px'; // width + small gap
+                }
+            });
+            
+            // Mouse up - stop resizing
+            document.addEventListener('mouseup', function() {
+                if (isResizing) {
+                    isResizing = false;
+                    resizer.classList.remove('resizing');
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                    
+                    // Save width to localStorage, clamped to compact range
+                    const currentWidth = parseInt(sidebar.style.width);
+                    if (currentWidth) {
+                        const clamped = Math.min(Math.max(currentWidth, 180), 250);
+                        localStorage.setItem('sidebarWidth', clamped);
+                    }
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    // Mobile: reset to default behavior
+                    sidebar.style.width = '';
+                    mainContent.style.marginLeft = '';
+                    sidebar.classList.remove('show');
+                } else {
+                    // Desktop: restore saved width
+                    const savedWidth = localStorage.getItem('sidebarWidth');
+                    if (savedWidth) {
+                        const rawWidth = parseInt(savedWidth);
+                        const width = Math.min(Math.max(rawWidth, 180), 250);
+                        if (width >= 180 && width <= 250) {
+                            sidebar.style.width = width + 'px';
+                            mainContent.style.marginLeft = (width + 16) + 'px';
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Close mobile sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuButton = event.target.closest('button');
+            if (window.innerWidth <= 768 && !sidebar.contains(event.target) && !menuButton) {
+                sidebar.classList.remove('show');
+            }
+        });
+        
+        // Logout Modal Functions
+        function showLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+        
+        function hideLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+        
+        function confirmLogout() {
+            // Create a form and submit it
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "logout_confirm" %}';
+            
+            // Add CSRF token
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = 'csrfmiddlewaretoken';
+            csrfToken.value = '{{ csrf_token }}';
+            form.appendChild(csrfToken);
+            
+            // Add confirm field
+            const confirmField = document.createElement('input');
+            confirmField.type = 'hidden';
+            confirmField.name = 'confirm';
+            confirmField.value = 'yes';
+            form.appendChild(confirmField);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Notification functionality
+        function updateNotificationCount() {
+            const badge = document.getElementById('pending-count');
+            const item = document.getElementById('notification-trigger');
+            
+            // Only proceed if elements exist (admin users only)
+            if (!badge) return;
+            
+            fetch('/api/pending-orders-count/')
+                .then(response => response.json())
+                .then(data => {
+                    // Only update if we have a valid response
+                    if (typeof data.count === 'number') {
+                        if (data.count === 0) {
+                            // Don't show or update badge when count is 0, just hide it
+                            badge.style.display = 'none';
+                            if (item) {
+                                item.style.opacity = '1';
+                                item.querySelector('.notification-content i').style.color = '#5e6e82';
+                            }
+                        } else {
+                            // Only update badge text and show it when count > 0
+                            badge.textContent = data.count;
+                            badge.classList.remove('zero');
+                            badge.style.display = 'inline-block';
+                            if (item) {
+                                item.style.opacity = '1';
+                                item.querySelector('.notification-content i').style.color = '#5e6e82';
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to update notification count:', error);
+                    // Don't hide badge on error, keep previous state
+                });
+        }
+        
+        function loadPendingOrders() {
+            console.log('Loading pending orders...');
+            fetch('/api/pending-orders/')
+                .then(response => {
+                    console.log('API response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API data received:', data);
+                    const notificationList = document.getElementById('notification-list');
+                    if (!notificationList) {
+                        console.error('notification-list element not found!');
+                        return;
+                    }
+                    
+                    if (!data.orders || data.orders.length === 0) {
+                        console.log('No pending orders found');
+                        notificationList.innerHTML = '<div class="floating-empty"><i class="fas fa-info-circle" style="display: block; margin-bottom: 10px; font-size: 2rem; color: #6b7280;"></i><div style="font-weight: 600; margin-bottom: 5px;">No Pending Orders</div><div style="font-size: 0.8rem; opacity: 0.7;">All orders have been processed</div></div>';
+                        return;
+                    }
+                    
+                    console.log('Found', data.orders.length, 'pending orders');
+                    
+                    notificationList.innerHTML = data.orders.map(order => `
+                        <div class="floating-order-item">
+                            <div class="floating-customer">${order.fullname}</div>
+                            <div class="floating-details">
+                                <div><i class="fas fa-piggy-bank"></i> ${order.pig_breed}</div>
+                                <div><i class="fas fa-map-marker-alt"></i> ${order.delivery_option}</div>
+                                <div><i class="fas fa-dollar-sign"></i> ₱${order.pig_price}</div>
+                            </div>
+                            <div class="floating-actions">
+                                <button class="floating-action-btn floating-btn-accept" data-order-id="${order.id}" type="button">
+                                    <i class="fas fa-check"></i> Accept
+                                </button>
+                                <button class="floating-action-btn floating-btn-decline" data-order-id="${order.id}" type="button">
+                                    <i class="fas fa-times"></i> Decline
+                                </button>
+                                <button class="floating-action-btn floating-btn-view" onclick="viewOrder(${order.id})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    // Add event listeners for accept and decline buttons
+                    setTimeout(() => {
+                        const acceptButtons = document.querySelectorAll('.floating-btn-accept');
+                        acceptButtons.forEach(button => {
+                            button.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const orderId = this.getAttribute('data-order-id');
+                                console.log('Accept button clicked via event listener, order:', orderId);
+                                acceptOrder(orderId);
+                            });
+                        });
+                        
+                        const declineButtons = document.querySelectorAll('.floating-btn-decline');
+                        declineButtons.forEach(button => {
+                            button.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const orderId = this.getAttribute('data-order-id');
+                                console.log('Decline button clicked via event listener, order:', orderId);
+                                declineOrder(orderId);
+                            });
+                        });
+                    }, 100);
+                })
+                .catch(error => {
+                    console.error('Failed to load pending orders:', error);
+                    const notificationList = document.getElementById('notification-list');
+                    if (notificationList) {
+                        notificationList.innerHTML = '<div class="floating-empty"><i class="fas fa-exclamation-triangle" style="display: block; margin-bottom: 10px; font-size: 2rem; color: #ef4444;"></i><div style="font-weight: 600; margin-bottom: 5px;">Error Loading Orders</div><div style="font-size: 0.8rem; opacity: 0.7;">Please refresh the page</div></div>';
+                    }
+                });
+        }
+        
+        function toggleFloatingNotifications() {
+            console.log('toggleFloatingNotifications called');
+            const panel = document.getElementById('floating-notifications');
+            
+            if (!panel) {
+                console.error('floating-notifications panel not found!');
+                return;
+            }
+            
+            if (panel.classList.contains('show')) {
+                console.log('Hiding notifications panel');
+                panel.classList.remove('show');
+            } else {
+                console.log('Showing notifications panel');
+                panel.classList.add('show');
+                loadPendingOrders();
+            }
+        }
+        
+        function closeFloatingNotifications() {
+            const panel = document.getElementById('floating-notifications');
+            panel.classList.remove('show');
+        }
+        
+        let currentOrderId = null;
+        
+        function acceptOrder(orderId) {
+            console.log('Accept button clicked for order:', orderId);
+            showCustomConfirmModal(orderId);
+        }
+        
+        function declineOrder(orderId) {
+            console.log('Decline button clicked for order:', orderId);
+            showCustomDeclineModal(orderId);
+        }
+        
+        function showCustomConfirmModal(orderId) {
+            // First, fetch the order details to show customer information
+            fetch('/api/pending-orders/')
+                .then(response => response.json())
+                .then(data => {
+                    const order = data.orders.find(o => o.id === orderId);
+                    
+                    let customerInfo = '';
+                    let canAccept = true;
+                    
+                    if (order) {
+                        // Check if this is a reservation (has downpayment) or checkout order (no downpayment)
+                        const hasPayment = order.down_payment > 0;
+                        const isReservation = hasPayment;
+                        
+                        let paymentStatus = '';
+                        
+                        if (isReservation) {
+                            // This is a reservation - validate downpayment
+                            const isMinimumPayment = order.down_payment >= order.required_payment;
+                            canAccept = hasPayment && isMinimumPayment;
+                            
+                            if (!isMinimumPayment) {
+                                paymentStatus = `<div style="color: #f59e0b; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> Insufficient payment (₱${order.down_payment.toLocaleString()} / ₱${order.required_payment.toLocaleString()} minimum)</div>`;
+                            } else {
+                                paymentStatus = `<div style="color: #22c55e; font-weight: 600;"><i class="fas fa-check-circle"></i> Down payment verified (₱${order.down_payment.toLocaleString()})</div>`;
+                            }
+                        } else {
+                            // This is a checkout order - no downpayment validation needed
+                            canAccept = true;
+                            paymentStatus = '<div style="color: #3b82f6; font-weight: 600;"><i class="fas fa-shopping-cart"></i> Checkout order - Payment on delivery</div>';
+                        }
+                        
+                        customerInfo = `
+                            <div class="customer-details">
+                                <h4><i class="fas fa-user"></i> Customer Information</h4>
+                                <div class="detail-row">
+                                    <span class="detail-label">Name:</span>
+                                    <span class="detail-value">${order.fullname}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Pig:</span>
+                                    <span class="detail-value">${order.pig_breed}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Delivery:</span>
+                                    <span class="detail-value">${order.delivery_option}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Price:</span>
+                                    <span class="detail-value">₱${order.pig_price.toLocaleString()}</span>
+                                </div>
+                                <div class="detail-row" style="border-top: 1px solid #e5e7eb; padding-top: 15px; margin-top: 15px;">
+                                    <span class="detail-label">Payment Status:</span>
+                                    <span class="detail-value">${paymentStatus}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        customerInfo = `
+                            <div class="order-info">
+                                <i class="fas fa-info-circle"></i>
+                                <span>This order will be marked as accepted</span>
+                            </div>
+                        `;
+                    }
+                    
+                    // Create modal HTML with customer information
+                    const acceptButtonHtml = canAccept 
+                        ? `<button class="confirm-btn confirm-accept" onclick="confirmAcceptOrder(${orderId})">
+                               <i class="fas fa-check"></i> Accept Order
+                           </button>`
+                        : `<button class="confirm-btn confirm-accept" disabled style="opacity: 0.5; cursor: not-allowed;" title="Cannot accept: Payment requirements not met">
+                               <i class="fas fa-exclamation-triangle"></i> Cannot Accept
+                           </button>`;
+                    
+                    const modalHTML = `
+                        <div class="custom-confirm-overlay" id="customConfirmOverlay">
+                            <div class="custom-confirm-modal">
+                                <div class="custom-confirm-header">
+                                    <div class="confirm-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <h3>Accept Order</h3>
+                                    <p>${canAccept ? 'Are you sure you want to accept this order?' : 'This order cannot be accepted due to payment requirements.'}</p>
+                                </div>
+                                <div class="custom-confirm-body">
+                                    ${customerInfo}
+                                </div>
+                                <div class="custom-confirm-footer">
+                                    <button class="confirm-btn confirm-cancel" onclick="closeCustomConfirm()">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                    ${acceptButtonHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add to body
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                })
+                .catch(error => {
+                    console.log('Failed to load order details:', error);
+                    // Fallback modal without customer details
+                    const modalHTML = `
+                        <div class="custom-confirm-overlay" id="customConfirmOverlay">
+                            <div class="custom-confirm-modal">
+                                <div class="custom-confirm-header">
+                                    <div class="confirm-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <h3>Accept Order</h3>
+                                    <p>Are you sure you want to accept this order?</p>
+                                </div>
+                                <div class="custom-confirm-body">
+                                    <div class="order-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>This order will be marked as accepted</span>
+                                    </div>
+                                </div>
+                                <div class="custom-confirm-footer">
+                                    <button class="confirm-btn confirm-cancel" onclick="closeCustomConfirm()">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                    <button class="confirm-btn confirm-accept" onclick="confirmAcceptOrder(${orderId})">
+                                        <i class="fas fa-check"></i> Accept Order
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                });
+        }
+        
+        function confirmAcceptOrder(orderId) {
+            console.log('Order accepted, redirecting...');
+            closeCustomConfirm();
+            window.location.href = '/manage/reservations/confirm/' + orderId + '/';
+        }
+        
+        function closeCustomConfirm() {
+            const modal = document.getElementById('customConfirmOverlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function showCustomDeclineModal(orderId) {
+            // First, fetch the order details to show customer information
+            fetch('/api/pending-orders/')
+                .then(response => response.json())
+                .then(data => {
+                    const order = data.orders.find(o => o.id === orderId);
+                    
+                    let customerInfo = '';
+                    if (order) {
+                        customerInfo = `
+                            <div class="customer-details">
+                                <h4><i class="fas fa-user"></i> Customer Information</h4>
+                                <div class="detail-row">
+                                    <span class="detail-label">Name:</span>
+                                    <span class="detail-value">${order.fullname}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Pig:</span>
+                                    <span class="detail-value">${order.pig_breed}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Delivery:</span>
+                                    <span class="detail-value">${order.delivery_option}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Price:</span>
+                                    <span class="detail-value">₱${order.pig_price}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        customerInfo = `
+                            <div class="order-info">
+                                <i class="fas fa-info-circle"></i>
+                                <span>This order will be declined</span>
+                            </div>
+                        `;
+                    }
+                    
+                    // Create decline modal HTML with customer information
+                    const modalHTML = `
+                        <div class="custom-confirm-overlay" id="customDeclineOverlay">
+                            <div class="custom-confirm-modal">
+                                <div class="custom-decline-header">
+                                    <div class="decline-icon">
+                                        <i class="fas fa-times-circle"></i>
+                                    </div>
+                                    <h3>Decline Order</h3>
+                                    <p>Are you sure you want to decline this order?</p>
+                                </div>
+                                <div class="custom-confirm-body">
+                                    ${customerInfo}
+                                </div>
+                                <div class="custom-confirm-footer">
+                                    <button class="confirm-btn confirm-cancel" onclick="closeCustomDecline()">
+                                        <i class="fas fa-arrow-left"></i> Cancel
+                                    </button>
+                                    <button class="confirm-btn confirm-decline" onclick="confirmDeclineOrder(${orderId})">
+                                        <i class="fas fa-times"></i> Decline Order
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add to body
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                })
+                .catch(error => {
+                    console.log('Failed to load order details:', error);
+                    // Fallback modal without customer details
+                    const modalHTML = `
+                        <div class="custom-confirm-overlay" id="customDeclineOverlay">
+                            <div class="custom-confirm-modal">
+                                <div class="custom-decline-header">
+                                    <div class="decline-icon">
+                                        <i class="fas fa-times-circle"></i>
+                                    </div>
+                                    <h3>Decline Order</h3>
+                                    <p>Are you sure you want to decline this order?</p>
+                                </div>
+                                <div class="custom-confirm-body">
+                                    <div class="order-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>This order will be declined</span>
+                                    </div>
+                                </div>
+                                <div class="custom-confirm-footer">
+                                    <button class="confirm-btn confirm-cancel" onclick="closeCustomDecline()">
+                                        <i class="fas fa-arrow-left"></i> Cancel
+                                    </button>
+                                    <button class="confirm-btn confirm-decline" onclick="confirmDeclineOrder(${orderId})">
+                                        <i class="fas fa-times"></i> Decline Order
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                });
+        }
+        
+        function confirmDeclineOrder(orderId) {
+            console.log('Order declined, redirecting...');
+            closeCustomDecline();
+            // Directly decline the order without additional confirmation
+            window.location.href = '/manage/reservations/delete/' + orderId + '/';
+        }
+        
+        function closeCustomDecline() {
+            const modal = document.getElementById('customDeclineOverlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function showAcceptModal(orderId) {
+            console.log('showAcceptModal called with orderId:', orderId);
+            
+            // Show modal immediately with loading state
+            const modalOverlay = document.getElementById('acceptModalOverlay');
+            if (!modalOverlay) {
+                console.error('Modal overlay not found!');
+                // Fallback to simple confirmation
+                if (confirm('Accept this order?')) {
+                    window.location.href = '/manage/reservations/confirm/' + orderId + '/';
+                }
+                return;
+            }
+            
+            // Show modal with loading state
+            document.getElementById('orderPreview').innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading order details...</div>';
+            modalOverlay.style.display = 'flex';
+            
+            // Find order data from the current loaded orders
+            fetch('/api/pending-orders/')
+                .then(response => response.json())
+                .then(data => {
+                    const order = data.orders.find(o => o.id === orderId);
+                    if (order) {
+                        populateOrderPreview(order);
+                    } else {
+                        // Show modal with basic info if order not found in API
+                        document.getElementById('orderPreview').innerHTML = `
+                            <h5><i class="fas fa-info-circle"></i> Order #${orderId}</h5>
+                            <div class="order-preview-item">
+                                <span class="order-preview-label">Order ID:</span>
+                                <span class="order-preview-value">#${orderId}</span>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.log('Failed to load order details:', error);
+                    // Show modal with basic info on API error
+                    document.getElementById('orderPreview').innerHTML = `
+                        <h5><i class="fas fa-exclamation-triangle"></i> Order #${orderId}</h5>
+                        <div class="order-preview-item">
+                            <span class="order-preview-label">Order ID:</span>
+                            <span class="order-preview-value">#${orderId}</span>
+                        </div>
+                        <div style="color: #f59e0b; font-size: 0.9rem; margin-top: 10px;">
+                            <i class="fas fa-info-circle"></i> Could not load full order details
+                        </div>
+                    `;
+                });
+        }
+        
+        function populateOrderPreview(order) {
+            const preview = document.getElementById('orderPreview');
+            preview.innerHTML = `
+                <h5><i class="fas fa-user"></i> Order Details</h5>
+                <div class="order-preview-item">
+                    <span class="order-preview-label">Customer:</span>
+                    <span class="order-preview-value">${order.fullname}</span>
+                </div>
+                <div class="order-preview-item">
+                    <span class="order-preview-label">Pig:</span>
+                    <span class="order-preview-value">${order.pig_breed}</span>
+                </div>
+                <div class="order-preview-item">
+                    <span class="order-preview-label">Delivery:</span>
+                    <span class="order-preview-value">${order.delivery_option}</span>
+                </div>
+                <div class="order-preview-item">
+                    <span class="order-preview-label">Price:</span>
+                    <span class="order-preview-value">₱${order.pig_price}</span>
+                </div>
+            `;
+            
+            // Set up confirm button
+            document.getElementById('confirmAcceptBtn').onclick = function() {
+                window.location.href = '/manage/reservations/confirm/' + currentOrderId + '/';
+            };
+        }
+        
+        function closeAcceptModal() {
+            document.getElementById('acceptModalOverlay').style.display = 'none';
+            currentOrderId = null;
+        }
+        
+        // Test function to show modal design
+        function showTestModal() {
+            const modalOverlay = document.getElementById('acceptModalOverlay');
+            if (modalOverlay) {
+                // Show test data
+                document.getElementById('orderPreview').innerHTML = `
+                    <h5><i class="fas fa-user"></i> Order Details</h5>
+                    <div class="order-preview-item">
+                        <span class="order-preview-label">Customer:</span>
+                        <span class="order-preview-value">John Doe</span>
+                    </div>
+                    <div class="order-preview-item">
+                        <span class="order-preview-label">Pig:</span>
+                        <span class="order-preview-value">Yorkshire (#123)</span>
+                    </div>
+                    <div class="order-preview-item">
+                        <span class="order-preview-label">Delivery:</span>
+                        <span class="order-preview-value">Home Delivery</span>
+                    </div>
+                    <div class="order-preview-item">
+                        <span class="order-preview-label">Price:</span>
+                        <span class="order-preview-value">₱15,000</span>
+                    </div>
+                `;
+                
+                // Set up test confirm button
+                document.getElementById('confirmAcceptBtn').onclick = function() {
+                    alert('This is a test modal! Order would be accepted here.');
+                    closeAcceptModal();
+                };
+                
+                modalOverlay.style.display = 'flex';
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const overlay = document.getElementById('acceptModalOverlay');
+            if (e.target === overlay) {
+                closeAcceptModal();
+            }
+        });
+        
+        function viewOrder(orderId) {
+            console.log('View order clicked for:', orderId);
+            showOrderDetailsModal(orderId);
+        }
+        
+        function showOrderDetailsModal(orderId) {
+            // Fetch the order details to show complete customer information
+            fetch('/api/pending-orders/')
+                .then(response => response.json())
+                .then(data => {
+                    const order = data.orders.find(o => o.id === orderId);
+                    
+                    if (!order) {
+                        alert('Order not found');
+                        return;
+                    }
+                    
+                    // Create detailed modal HTML with all customer information
+                    const modalHTML = `
+                        <div class="custom-confirm-overlay" id="orderDetailsOverlay">
+                            <div class="order-details-modal">
+                                <div class="order-details-header">
+                                    <div class="details-icon">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <h3>Order Details</h3>
+                                    <button class="close-btn" onclick="closeOrderDetails()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="order-details-body">
+                                    <div class="info-section">
+                                        <h4><i class="fas fa-user"></i> Personal Information</h4>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <label>Full Name</label>
+                                                <span>${order.fullname}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Contact Number</label>
+                                                <span>${order.contact_number || 'Not provided'}</span>
+                                            </div>
+                                            <div class="info-item full-width">
+                                                <label>Address</label>
+                                                <span>${order.address || 'Not provided'}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Email</label>
+                                                <span>${order.email || 'Not provided'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="info-section">
+                                        <h4><i class="fas fa-piggy-bank"></i> Pig Information</h4>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <label>Breed</label>
+                                                <span>${order.pig_breed}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Price</label>
+                                                <span>₱${order.pig_price}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="info-section">
+                                        <h4><i class="fas fa-truck"></i> Delivery & Payment</h4>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <label>Delivery Option</label>
+                                                <span>${order.delivery_option}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Payment Method</label>
+                                                <span>${order.payment_method || 'Not specified'}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Pickup Time</label>
+                                                <span>${order.pickup_time || 'Not specified'}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Order Date</label>
+                                                <span>${order.created_at}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Payment Amount</label>
+                                                <span style="color: ${order.down_payment > 0 ? '#22c55e' : '#ef4444'}; font-weight: 600;">
+                                                    ${order.down_payment > 0 ? '₱' + order.down_payment.toLocaleString() : 'Not provided'}
+                                                </span>
+                                            </div>
+                                            ${order.down_payment > 0 ? `
+                                            <div class="info-item">
+                                                <label>Minimum Down Payment</label>
+                                                <span>₱${order.required_payment.toLocaleString()}</span>
+                                            </div>
+                                            ` : ''}
+                                            <div class="info-item">
+                                                <label>Proof of Payment</label>
+                                                <span style="color: ${order.has_proof_of_payment ? '#22c55e' : '#6c757d'}; font-weight: 600;">
+                                                    ${order.has_proof_of_payment ? 'Uploaded' : 'Will upload after acceptance'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="order-details-footer">
+                                    <button class="details-btn details-close" onclick="closeOrderDetails()">
+                                        <i class="fas fa-times"></i> Close
+                                    </button>
+                                    <button class="details-btn details-accept" onclick="closeOrderDetails(); acceptOrder(${orderId});">
+                                        <i class="fas fa-check"></i> Accept Order
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add to body
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                })
+                .catch(error => {
+                    console.log('Failed to load order details:', error);
+                    alert('Failed to load order details');
+                });
+        }
+        
+        function closeOrderDetails() {
+            const modal = document.getElementById('orderDetailsOverlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // Update notification count on page load and every 30 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if notification elements exist (admin only)
+            const notificationTrigger = document.getElementById('notification-trigger');
+            if (notificationTrigger) {
+                // Initialize notifications with a small delay to prevent flicker on page load
+                setTimeout(updateNotificationCount, 500);
+                setInterval(updateNotificationCount, 30000); // Update every 30 seconds
+                
+                // Add click handler for notification trigger
+                notificationTrigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleFloatingNotifications();
+                });
+            }
+            
+            // Close floating panel when clicking outside
+            document.addEventListener('click', function(e) {
+                const panel = document.getElementById('floating-notifications');
+                const trigger = document.getElementById('notification-trigger');
+                
+                if (panel && trigger && 
+                    !trigger.contains(e.target) && 
+                    !panel.contains(e.target)) {
+                    closeFloatingNotifications();
+                }
+            });
+        });
+    </script>
+    
+    <!-- Customer Payment Notification System -->
+    {% if not user.is_staff and not user.is_superuser and user.is_authenticated %}
+    <script>
+        function showNotificationPage(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            // Remove active class from all navigation items first
+            const allNavLinks = document.querySelectorAll('.sidebar .nav-link, .sidebar .notification-trigger');
+            allNavLinks.forEach(link => link.classList.remove('active'));
+            
+            // Add active class to notification trigger
+            const trigger = document.getElementById('customer-notification-trigger');
+            if (trigger) {
+                trigger.classList.add('active');
+            }
+            
+            // Hide main content and show notification content
+            const mainContent = document.querySelector('.main-content, main, .content, #main-content');
+            if (mainContent) {
+                mainContent.style.display = 'none';
+            }
+            
+            const sidebar = document.getElementById('sidebar');
+            const page = document.getElementById('payment-notification-page');
+            
+            // Load and show notification page with Facebook-style list
+            loadCustomerNotifications();
+            
+            if (page) {
+                if (window.innerWidth <= 768) {
+                    // Mobile: full-width page, close sidebar
+                    page.style.marginLeft = '0';
+                    page.style.width = '100%';
+                    page.style.position = 'relative';
+                    if (sidebar) {
+                        sidebar.classList.remove('show');
+                    }
+                } else {
+                    // Desktop: align with sidebar width but keep normal flow
+                    const sidebarWidth = sidebar ? sidebar.offsetWidth : 260;
+                    const totalMargin = sidebarWidth + 32; // sidebar width + margins (16px each side)
+                    page.style.marginLeft = totalMargin + 'px';
+                    page.style.width = 'calc(100% - ' + totalMargin + 'px)';
+                    page.style.position = 'relative';
+                }
+                page.style.display = 'block';
+            }
+        }
+        
+        function loadCustomerNotifications() {
+            console.log('Loading customer notifications...');
+            
+            // Load multiple types of notifications
+            Promise.all([
+                fetch('/api/get-payment-details/'),
+                fetch('/api/get-payment-received-notifications/'),
+                fetch('/api/get-completed-orders-notifications/')
+            ])
+            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then(([paymentData, paymentReceivedData, completedOrdersData]) => {
+                console.log('All notification data received:', {paymentData, paymentReceivedData, completedOrdersData});
+                const notificationList = document.getElementById('customer-notification-list');
+                if (!notificationList) {
+                    console.error('customer-notification-list element not found!');
+                    return;
+                }
+                
+                let allNotifications = [];
+                
+                // Add payment required notifications
+                if (paymentData.orders && paymentData.orders.length > 0) {
+                    const acknowledgedPayments = JSON.parse(localStorage.getItem('acknowledgedCashPayments') || '[]');
+                    
+                    paymentData.orders.forEach(order => {
+                        const isGCash = order.payment_method === 'gcash';
+                        const isCash = order.payment_method === 'cash';
+                        const isAcknowledged = isCash && acknowledgedPayments.includes(order.id);
+                        
+                        const iconClass = isCash ? 'fas fa-user' : 'fas fa-user';
+                        const bgColor = isAcknowledged ? '#10b981' : (isCash ? '#f59e0b' : '#22c55e');
+                        const textOpacity = isAcknowledged ? '0.9' : '1';
+                        // Format pickup date and time for display
+                        const pickupDate = order.pickup_date ? new Date(order.pickup_date).toLocaleDateString('en-US', { 
+                            month: 'short', day: 'numeric', year: 'numeric' 
+                        }) : 'TBD';
+                        const pickupTime = order.pickup_time || 'TBD';
+                        
+                        const titleText = isAcknowledged ? 'Remaining Balance Paid' : (isCash ? `Balance Due: ${pickupDate}` : `Balance Due: ${pickupDate}`);
+                        const actionText = isAcknowledged ? 'Acknowledged ✓' : (isCash ? `Pay on delivery at ${pickupTime}` : `Pay online by ${pickupDate}`);
+                        
+                        allNotifications.push({
+                            type: 'payment_required',
+                            html: `
+                                <div onclick="showPaymentModalForOrder(${order.id})" style="padding: 20px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background-color 0.2s ease; opacity: ${textOpacity};" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div style="background: ${bgColor}; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            ${isAcknowledged ? '<i class="fas fa-check" style="font-size: 1.2rem;"></i>' : `<i class="${iconClass}" style="font-size: 1.2rem;"></i>`}
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem; margin-bottom: 4px;">
+                                                ${titleText}
+                                            </div>
+                                            <div style="color: #1f2937; font-weight: 600; margin-bottom: 2px;">
+                                                ${order.pig_breed}
+                                            </div>
+                                            <div style="color: #1f2937; font-weight: 600; font-size: 1rem;">
+                                                Remaining: ₱${order.remaining_balance.toLocaleString()}
+                                            </div>
+                                            <div style="color: #6b7280; font-size: 0.85rem; margin-bottom: 4px;">
+                                                Paid: ₱${order.downpayment_amount.toLocaleString()} | Total: ₱${order.total_amount.toLocaleString()}
+                                            </div>
+                                            <div style="font-size: 0.9rem; color: ${bgColor}; font-weight: 600; margin-top: 6px;">
+                                                <i class="fas fa-${isAcknowledged ? 'check' : 'hand-pointer'} me-1"></i>${actionText}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `
+                        });
+                    });
+                }
+                
+                // Add payment received notifications
+                if (paymentReceivedData.orders && paymentReceivedData.orders.length > 0) {
+                    const acknowledgedPaymentReceived = JSON.parse(localStorage.getItem('acknowledgedPaymentReceived') || '[]');
+                    
+                    paymentReceivedData.orders.forEach(order => {
+                        const isAcknowledged = acknowledgedPaymentReceived.includes(order.id);
+                        const bgColor = isAcknowledged ? '#3b82f6' : '#10b981';
+                        const textOpacity = isAcknowledged ? '0.9' : '1';
+                        const titleText = isAcknowledged ? 'Payment Received - Acknowledged' : 'Payment Received!';
+                        const actionText = isAcknowledged ? 'Acknowledged ✓' : 'Your payment has been confirmed';
+                        
+                        allNotifications.push({
+                            type: 'payment_received',
+                            html: `
+                                <div onclick="acknowledgePaymentReceived(${order.id})" style="padding: 20px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background-color 0.2s ease; opacity: ${textOpacity};" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div style="background: ${bgColor}; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem; margin-bottom: 4px;">
+                                                ${titleText}
+                                            </div>
+                                            <div style="color: #1f2937; font-weight: 600; margin-bottom: 2px;">
+                                                ${order.pig_breed}
+                                            </div>
+                                            <div style="color: #1f2937; font-weight: 600; font-size: 1rem;">
+                                                ₱${order.total_amount.toLocaleString()}
+                                            </div>
+                                            <div style="font-size: 0.9rem; color: ${bgColor}; font-weight: 600; margin-top: 6px;">
+                                                <i class="fas fa-${isAcknowledged ? 'check' : 'thumbs-up'} me-1"></i>${actionText}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `
+                        });
+                    });
+                }
+                
+                // Add completed order notifications (with feedback request)
+                if (completedOrdersData.orders && completedOrdersData.orders.length > 0) {
+                    const acknowledgedFeedback = JSON.parse(localStorage.getItem('acknowledgedFeedback') || '[]');
+                    
+                    completedOrdersData.orders.forEach(order => {
+                        const isAcknowledged = acknowledgedFeedback.includes(order.id);
+                        const bgColor = isAcknowledged ? '#8b5cf6' : '#3b82f6';
+                        const textOpacity = isAcknowledged ? '0.9' : '1';
+                        const titleText = isAcknowledged ? 'Feedback Submitted - Thank You!' : 'Order Completed - Share Your Feedback!';
+                        const actionText = isAcknowledged ? 'Feedback submitted ✓' : 'Rate your experience';
+                        const iconClass = isAcknowledged ? 'fas fa-check' : 'fas fa-star';
+                        
+                        allNotifications.push({
+                            type: 'order_completed',
+                            html: `
+                                <div onclick="${isAcknowledged ? '' : `showFeedbackModal(${order.id})`}" style="padding: 20px; border-bottom: 1px solid #f1f5f9; cursor: ${isAcknowledged ? 'default' : 'pointer'}; transition: background-color 0.2s ease; opacity: ${textOpacity};" onmouseover="this.style.backgroundColor='${isAcknowledged ? 'white' : '#f8f9fa'}'" onmouseout="this.style.backgroundColor='white'">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div style="background: ${bgColor}; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            <i class="${iconClass}" style="font-size: 1.2rem;"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem; margin-bottom: 4px;">
+                                                ${titleText}
+                                            </div>
+                                            <div style="color: #1f2937; font-weight: 600; margin-bottom: 2px;">
+                                                ${order.pig_breed}
+                                            </div>
+                                            <div style="color: #1f2937; font-weight: 600; font-size: 1rem;">
+                                                ₱${order.total_amount.toLocaleString()}
+                                            </div>
+                                            <div style="font-size: 0.9rem; color: ${bgColor}; font-weight: 600; margin-top: 6px;">
+                                                <i class="fas fa-${isAcknowledged ? 'check' : 'comment'} me-1"></i>${actionText}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `
+                        });
+                    });
+                }
+                
+                if (allNotifications.length === 0) {
+                    notificationList.innerHTML = `
+                        <div style="padding: 60px 40px; text-align: center; color: #6b7280;">
+                            <i class="fas fa-check-circle" style="font-size: 4rem; margin-bottom: 20px; color: #22c55e;"></i>
+                            <h3 style="color: #1f2937; margin-bottom: 10px; font-weight: 600;">All Caught Up!</h3>
+                            <p style="margin: 0; font-size: 1rem;">You have no new notifications at this time.</p>
+                        </div>
+                    `;
+                } else {
+                    notificationList.innerHTML = allNotifications.map(notification => notification.html).join('');
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load customer notifications:', error);
+                // Fallback to original payment notifications only
+                fetch('/api/get-payment-details/')
+                    .then(response => response.json())
+                    .then(data => {
+                        const notificationList = document.getElementById('customer-notification-list');
+                        if (!notificationList) return;
+                        
+                        if (!data.orders || data.orders.length === 0) {
+                            notificationList.innerHTML = `
+                                <div style="padding: 60px 40px; text-align: center; color: #6b7280;">
+                                    <i class="fas fa-check-circle" style="font-size: 4rem; margin-bottom: 20px; color: #22c55e;"></i>
+                                    <h3 style="color: #1f2937; margin-bottom: 10px; font-weight: 600;">All Caught Up!</h3>
+                                    <p style="margin: 0; font-size: 1rem;">You have no pending payments at this time.</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        // Original payment notification logic as fallback
+                        const acknowledgedPayments = JSON.parse(localStorage.getItem('acknowledgedCashPayments') || '[]');
+                        notificationList.innerHTML = data.orders.map(order => {
+                            const isGCash = order.payment_method === 'gcash';
+                            const isCash = order.payment_method === 'cash';
+                            const isAcknowledged = isCash && acknowledgedPayments.includes(order.id);
+                            
+                            const iconClass = isCash ? 'fas fa-user' : 'fas fa-user';
+                            const bgColor = isAcknowledged ? '#10b981' : (isCash ? '#f59e0b' : '#22c55e');
+                            const textOpacity = isAcknowledged ? '0.9' : '1';
+                            const titleText = isAcknowledged ? 'Cash Payment Acknowledged' : (isCash ? 'Cash Payment Required' : 'GCash Payment Required');
+                            const actionText = isAcknowledged ? 'Acknowledged ✓' : (isCash ? 'View details' : 'Click to pay');
+                            
+                            return `
+                                <div onclick="showPaymentModalForOrder(${order.id})" style="padding: 20px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background-color 0.2s ease; opacity: ${textOpacity};" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div style="background: ${bgColor}; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            ${isAcknowledged ? '<i class="fas fa-check" style="font-size: 1.2rem;"></i>' : `<i class="${iconClass}" style="font-size: 1.2rem;"></i>`}
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem; margin-bottom: 4px;">
+                                                ${titleText}
+                                            </div>
+                                            <div style="color: #1f2937; font-weight: 600; margin-bottom: 2px;">
+                                                ${order.pig_breed}
+                                            </div>
+                                            <div style="color: #1f2937; font-weight: 600; font-size: 1rem;">
+                                                ₱${order.total_amount.toLocaleString()}
+                                            </div>
+                                            <div style="font-size: 0.9rem; color: ${bgColor}; font-weight: 600; margin-top: 6px;">
+                                                <i class="fas fa-${isAcknowledged ? 'check' : 'hand-pointer'} me-1"></i>${actionText}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    })
+                    .catch(fallbackError => {
+                        console.error('Fallback also failed:', fallbackError);
+                        const notificationList = document.getElementById('customer-notification-list');
+                        if (notificationList) {
+                            notificationList.innerHTML = `
+                                <div style="padding: 40px; text-align: center; color: #ef4444;">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                                    <h3 style="margin-bottom: 10px; font-weight: 600;">Error Loading Notifications</h3>
+                                    <p style="margin: 0;">Please try again later.</p>
+                                </div>
+                            `;
+                        }
+                    });
+            });
+        }
+        
+        function closeNotificationPage() {
+            const page = document.getElementById('payment-notification-page');
+            if (page) {
+                page.style.display = 'none';
+            }
+            
+            // Remove active class from notification trigger
+            const trigger = document.getElementById('customer-notification-trigger');
+            if (trigger) {
+                trigger.classList.remove('active');
+            }
+            
+            // Show main content again
+            const mainContent = document.querySelector('.main-content, main, .content, #main-content');
+            if (mainContent) {
+                mainContent.style.display = 'block';
+            }
+        }
+        
+        function loadNotificationPage() {
+            fetch('/api/get-payment-details/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Loading notification page with data:', data); // Debug log
+                    
+                    // Populate statistics cards
+                    const statsContainer = document.getElementById('payment-stats-container');
+                    const totalOrders = data.orders ? data.orders.length : 0;
+                    const totalAmount = data.orders ? data.orders.reduce((sum, order) => sum + order.total_amount, 0) : 0;
+                    
+                    if (totalOrders > 0) {
+                        statsContainer.innerHTML = `
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-bell" style="color: #f59e0b;"></i>
+                                </div>
+                                <div class="stat-number" style="color: #f59e0b;">${totalOrders}</div>
+                                <div class="stat-label">Pending Payments</div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-peso-sign" style="color: #22c55e;"></i>
+                                </div>
+                                <div class="stat-number" style="color: #22c55e;">₱${totalAmount.toLocaleString()}</div>
+                                <div class="stat-label">Total Amount Due</div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-credit-card" style="color: #3b82f6;"></i>
+                                </div>
+                                <div class="stat-number" style="color: #3b82f6;">GCash</div>
+                                <div class="stat-label">Payment Method</div>
+                            </div>
+                        `;
+                        statsContainer.style.display = 'grid';
+                    } else {
+                        statsContainer.style.display = 'none';
+                    }
+                    
+                    // Populate notifications table
+                    const tableContainer = document.getElementById('payment-notification-table');
+                    
+                    if (data.orders && data.orders.length > 0) {
+                        let tableHtml = `
+                            <table class="table" style="margin: 0;">
+                                <thead>
+                                    <tr>
+                                        <th style="background: #f8f9fa; color: #000000; font-weight: 700; border: none; padding: 15px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">CUSTOMER NAME</th>
+                                        <th style="background: #f8f9fa; color: #000000; font-weight: 700; border: none; padding: 15px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">PIG DETAILS</th>
+                                        <th style="background: #f8f9fa; color: #000000; font-weight: 700; border: none; padding: 15px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">CONTACT</th>
+                                        <th style="background: #f8f9fa; color: #000000; font-weight: 700; border: none; padding: 15px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">PAYMENT</th>
+                                        <th style="background: #f8f9fa; color: #000000; font-weight: 700; border: none; padding: 15px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">STATUS</th>
+                                        <th style="background: #f8f9fa; color: #000000; font-weight: 700; border: none; padding: 15px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        
+                        data.orders.forEach((order, index) => {
+                            const isGCash = order.payment_method === 'gcash';
+                            const isCash = order.payment_method === 'cash';
+                            
+                            // Button text and icon based on payment method
+                            const buttonText = isCash ? 'View Details' : 'Pay Now';
+                            const buttonIcon = isCash ? 'fas fa-info-circle' : 'fas fa-credit-card';
+                            
+                            tableHtml += `
+                                <tr>
+                                    <td style="padding: 15px; vertical-align: middle; border-color: #f1f5f9;">
+                                        <div>
+                                            <strong>${order.customer_name}</strong>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 15px; vertical-align: middle; border-color: #f1f5f9;">
+                                        <div style="font-weight: 700; color: #1f2937; font-size: 0.9rem;">${order.pig_breed}</div>
+                                        <div style="color: #6b7280; font-size: 0.85rem;">₱${order.total_amount.toLocaleString()}</div>
+                                    </td>
+                                    <td style="padding: 15px; vertical-align: middle; border-color: #f1f5f9;">
+                                        <strong>Contact Info</strong>
+                                    </td>
+                                    <td style="padding: 15px; vertical-align: middle; border-color: #f1f5f9;">
+                                        <div style="font-weight: 600;">${order.payment_method_display}</div>
+                                        <div style="color: ${isCash ? '#f59e0b' : '#22c55e'}; font-size: 0.85rem; font-weight: 600;">
+                                            ${isCash ? 'Pay on Delivery' : 'Online Payment'}: ₱${order.total_amount.toLocaleString()}
+                                        </div>
+                                    </td>
+                                    <td style="padding: 15px; vertical-align: middle; border-color: #f1f5f9;">
+                                        <span style="background: ${isCash ? '#fef3c7' : '#fef3c7'}; color: ${isCash ? '#92400e' : '#92400e'}; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            ${isCash ? 'CASH ON DELIVERY' : 'PENDING PAYMENT'}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 15px; vertical-align: middle; border-color: #f1f5f9;">
+                                        <button onclick="showPaymentModalForOrder(${order.id})" style="background: linear-gradient(135deg, ${isCash ? '#3b82f6' : '#22c55e'} 0%, ${isCash ? '#2563eb' : '#16a34a'} 100%); color: white; padding: 8px 16px; border: none; border-radius: 15px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+                                            <i class="${buttonIcon} me-1"></i>${buttonText}
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        
+                        tableHtml += '</tbody></table>';
+                        tableContainer.innerHTML = tableHtml;
+                    } else {
+                        tableContainer.innerHTML = `
+                            <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
+                                <i class="fas fa-check-circle" style="font-size: 4rem; margin-bottom: 20px; color: #22c55e;"></i>
+                                <h3 style="color: #1f2937; margin-bottom: 10px;">All Caught Up!</h3>
+                                <p>You have no pending payments at this time.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading notification page:', error);
+                    document.getElementById('payment-notification-table').innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #ef4444;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                            <h3>Error Loading Notifications</h3>
+                            <p>Please try again later.</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        
+        function checkPaymentNotifications() {
+            fetch('/api/check-accepted-orders/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Payment notification check:', data); // Debug log
+                    
+                    // Get acknowledged cash payments from local storage
+                    const acknowledgedPayments = JSON.parse(localStorage.getItem('acknowledgedCashPayments') || '[]');
+                    
+                    // Get detailed order data to filter properly
+                    return fetch('/api/get-payment-details/')
+                        .then(response => response.json())
+                        .then(detailData => {
+                            if (detailData.orders) {
+                                // Count only unacknowledged notifications for badge
+                                const unacknowledgedCount = detailData.orders.filter(order => {
+                                    if (order.payment_method === 'cash' && acknowledgedPayments.includes(order.id)) {
+                                        return false; // Don't count acknowledged cash payments
+                                    }
+                                    return true; // Count all other notifications
+                                }).length;
+                                
+                                const adjustedCount = unacknowledgedCount;
+                                const badge = document.getElementById('payment-count');
+                                
+                                if (badge) {
+                                    badge.textContent = adjustedCount;
+                                    badge.style.display = (adjustedCount > 0) ? 'inline-flex' : 'none';
+                                }
+                            } else {
+                                // Fallback to original count if detailed data not available
+                                const badge = document.getElementById('payment-count');
+                                if (badge) {
+                                    badge.textContent = data.count || 0;
+                                    badge.style.display = (data.count > 0) ? 'inline-flex' : 'none';
+                                }
+                            }
+                        });
+                })
+                .catch(error => console.error('Error checking payment notifications:', error));
+        }
+        
+        function showPaymentModalForOrder(orderId) {
+            // Don't close notification page - keep it in background
+            
+            // Fetch and show modal for specific order
+            fetch('/api/get-payment-details/')
+                .then(response => response.json())
+                .then(data => {
+                    const order = data.orders.find(o => o.id === orderId);
+                    if (order) {
+                        showPaymentModalWithOrder(order);
+                    }
+                })
+                .catch(error => console.error('Error loading order details:', error));
+        }
+        
+        function showPaymentModalWithOrder(order) {
+            const modal = document.getElementById('paymentNotificationModal');
+            const content = document.getElementById('paymentModalContent');
+            
+            // Check payment method to show appropriate content
+            const isGCash = order.payment_method === 'gcash';
+            const isCash = order.payment_method === 'cash';
+            
+            let paymentContent = '';
+            
+            if (isGCash) {
+                // GCash payment - show QR code and upload form
+                paymentContent = `
+                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+                        <p style="font-weight: 600; color: #1f2937; margin-bottom: 15px; font-size: 1.1rem;">
+                            <i class="fas fa-qrcode me-2"></i>Scan to Pay via GCash
+                        </p>
+                        <div style="background: #e3f2fd; border: 2px solid #2196f3; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                            <p style="color: #1565c0; font-weight: 600; margin: 0; font-size: 0.95rem;">
+                                <i class="fas fa-info-circle me-2"></i>You can pay any amount using this QR code:
+                            </p>
+                            <ul style="color: #1565c0; text-align: left; margin: 10px 0 0 0; padding-left: 20px; font-size: 0.9rem;">
+                                <li>Remaining Balance: ₱${order.remaining_balance.toLocaleString()}</li>
+                                <li>Total Amount: ₱${order.total_amount.toLocaleString()}</li>
+                                <li>Or any amount you prefer</li>
+                            </ul>
+                        </div>
+                        <div style="position: relative; cursor: pointer; max-width: 400px; margin: 0 auto;" onclick="openQRModal()">
+                            <img src="/static/images/gcash-qr-new.png" alt="GCash QR Code" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin-bottom: 20px; transition: transform 0.2s ease;">
+                            <div style="position: absolute; top: 10px; right: 10px; background: rgba(34, 197, 94, 0.9); color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; pointer-events: none;">
+                                <i class="fas fa-expand me-1"></i>Click to enlarge
+                            </div>
+                        </div>
+                        
+                        <div style="border-top: 2px dashed #e5e7eb; padding-top: 20px; margin-top: 20px;">
+                            <p style="font-weight: 600; color: #1f2937; margin-bottom: 15px; font-size: 1rem;">
+                                <i class="fas fa-upload me-2"></i>Upload Proof of Payment
+                            </p>
+                            <form id="uploadProofForm-${order.id}" enctype="multipart/form-data" style="max-width: 500px; margin: 0 auto;">
+                                <input type="file" 
+                                       name="proof_of_payment" 
+                                       id="proofInput-${order.id}"
+                                       accept="image/*,.pdf"
+                                       multiple
+                                       required
+                                       style="display: none;">
+                                <label for="proofInput-${order.id}" 
+                                       style="display: block; background: #f8f9fa; border: 2px dashed #22c55e; border-radius: 15px; padding: 30px 20px; cursor: pointer; transition: all 0.3s ease; text-align: center;">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: #22c55e; margin-bottom: 10px; display: block;"></i>
+                                    <span style="color: #1f2937; font-weight: 600; display: block; margin-bottom: 5px;">Click to select images</span>
+                                    <span style="color: #6b7280; font-size: 0.85rem; display: block;">JPG, PNG, or PDF (You can select multiple files)</span>
+                                    <div id="fileList-${order.id}" style="margin-top: 15px; text-align: left;"></div>
+                                </label>
+                                <button type="submit" 
+                                        id="uploadBtn-${order.id}"
+                                        style="width: 100%; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 12px 30px; border: none; border-radius: 25px; font-weight: 600; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); cursor: pointer; margin-top: 15px; display: none; transition: all 0.3s ease;">
+                                    <i class="fas fa-check me-2"></i>Submit Proof of Payment
+                                </button>
+                            </form>
+                            <p style="margin-top: 10px; color: #6b7280; font-size: 0.85rem;">
+                                Upload payment receipts and specify the amount you paid in the receipt
+                            </p>
+                            <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 10px; margin-top: 10px;">
+                                <p style="color: #856404; font-size: 0.85rem; margin: 0; font-weight: 600;">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Note: Make sure your receipt shows the exact amount you paid
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (isCash) {
+                // Cash payment - show instruction to pay in person
+                paymentContent = `
+                    <div style="background: white; padding: 30px; border-radius: 10px; text-align: center;">
+                        <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 15px; padding: 25px; margin-bottom: 20px;">
+                            <i class="fas fa-hand-holding-usd" style="font-size: 3rem; color: #f59e0b; margin-bottom: 15px; display: block;"></i>
+                            <h3 style="color: #92400e; margin-bottom: 15px; font-weight: 700;">Cash Payment Required</h3>
+                            <p style="color: #92400e; font-size: 1.1rem; margin-bottom: 10px; font-weight: 600;">
+                                Please prepare ₱${order.remaining_balance.toLocaleString()} in cash
+                            </p>
+                            <p style="color: #92400e; font-size: 0.95rem; margin: 0;">
+                                Payment will be collected during pig delivery/pickup
+                            </p>
+                        </div>
+                        
+                        <div style="background: #f0f9ff; border: 2px solid #3b82f6; border-radius: 15px; padding: 20px;">
+                            <i class="fas fa-info-circle" style="color: #3b82f6; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                            <h4 style="color: #1e40af; margin-bottom: 10px; font-weight: 600;">Payment Instructions</h4>
+                            <ul style="color: #1e40af; text-align: left; margin: 0; padding-left: 20px;">
+                                <li style="margin-bottom: 8px;">Have the exact amount ready</li>
+                                <li style="margin-bottom: 8px;">Payment is due upon delivery/pickup</li>
+                                <li style="margin-bottom: 8px;">A receipt will be provided</li>
+                                <li>No advance payment required</li>
+                            </ul>
+                        </div>
+                        
+                        <button onclick="acknowledgeCashPayment(${order.id})" style="width: 100%; background: #3b82f6; color: white; padding: 12px 30px; border: none; border-radius: 25px; font-weight: 600; cursor: pointer; margin-top: 20px; font-size: 1rem;">
+                            <i class="fas fa-check me-2"></i>I Understand
+                        </button>
+                    </div>
+                `;
+            }
+            
+            let html = `
+                <div style="padding: 20px;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Pig:</strong> ${order.pig_breed}</p>
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Customer:</strong> ${order.customer_name}</p>
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Payment Method:</strong> ${order.payment_method_display}</p>
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Delivery Date:</strong> ${order.pickup_date ? new Date(order.pickup_date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : 'TBD'}</p>
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Delivery Time:</strong> ${order.pickup_time || 'TBD'}</p>
+                        ${order.downpayment_amount > 0 ? `
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Downpayment Paid:</strong> ₱${order.downpayment_amount.toLocaleString()}</p>
+                        <p style="margin: 5px 0; font-size: 1.3rem; color: #22c55e; font-weight: 700;">
+                            <i class="fas fa-peso-sign me-1"></i>Remaining Balance: ₱${order.remaining_balance.toLocaleString()}
+                        </p>
+                        ` : `
+                        <p style="margin: 5px 0; font-size: 1.3rem; color: #22c55e; font-weight: 700;">
+                            <i class="fas fa-peso-sign me-1"></i>Total Amount: ₱${order.total_amount.toLocaleString()}
+                        </p>
+                        `}
+                        <p style="margin: 5px 0; color: #6b7280; font-size: 0.9rem;"><strong>Total Order:</strong> ₱${order.total_amount.toLocaleString()}</p>
+                    </div>
+                    ${paymentContent}
+                </div>
+            `;
+            
+            content.innerHTML = html;
+            modal.style.display = 'flex';
+            
+            // Add event listeners for file upload
+            setupFileUpload(order.id);
+        }
+        
+        function setupFileUpload(orderId) {
+            const fileInput = document.getElementById(`proofInput-${orderId}`);
+            const fileList = document.getElementById(`fileList-${orderId}`);
+            const uploadBtn = document.getElementById(`uploadBtn-${orderId}`);
+            const uploadForm = document.getElementById(`uploadProofForm-${orderId}`);
+            
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    if (this.files && this.files.length > 0) {
+                        let filesHtml = '<div style="background: white; padding: 10px; border-radius: 8px; margin-top: 10px;">';
+                        filesHtml += '<p style="color: #22c55e; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px;"><i class="fas fa-check-circle me-1"></i>Selected Files:</p>';
+                        
+                        for (let i = 0; i < this.files.length; i++) {
+                            const file = this.files[i];
+                            const fileSize = (file.size / 1024).toFixed(1);
+                            filesHtml += `<div style="padding: 5px 0; color: #4b5563; font-size: 0.85rem;">
+                                <i class="fas fa-file-image me-1" style="color: #22c55e;"></i>
+                                ${file.name} <span style="color: #9ca3af;">(${fileSize} KB)</span>
+                            </div>`;
+                        }
+                        
+                        filesHtml += '</div>';
+                        fileList.innerHTML = filesHtml;
+                        uploadBtn.style.display = 'block';
+                        uploadBtn.innerHTML = `<i class="fas fa-check me-2"></i>Submit ${this.files.length} File${this.files.length > 1 ? 's' : ''}`;
+                    }
+                });
+            }
+            
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+                    
+                    uploadBtn.disabled = true;
+                    uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+                    uploadBtn.style.background = '#9ca3af';
+                    
+                    fetch(`/api/upload-payment-proof/${orderId}/`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {}
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            uploadBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Success!';
+                            uploadBtn.style.background = '#22c55e';
+                            
+                            setTimeout(() => {
+                                closePaymentModal();
+                                checkPaymentNotifications();
+                            }, 1500);
+                        } else {
+                            alert('Error: ' + data.message);
+                            uploadBtn.disabled = false;
+                            uploadBtn.innerHTML = '<i class="fas fa-check me-2"></i>Submit Proof of Payment';
+                            uploadBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Upload error:', error);
+                        alert('Error uploading proof of payment. Please try again.');
+                        uploadBtn.disabled = false;
+                        uploadBtn.innerHTML = '<i class="fas fa-check me-2"></i>Submit Proof of Payment';
+                        uploadBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+                    });
+                });
+            }
+        }
+        
+        function acknowledgeCashPayment(orderId) {
+            // Store acknowledged cash payment in local storage
+            let acknowledgedPayments = JSON.parse(localStorage.getItem('acknowledgedCashPayments') || '[]');
+            if (!acknowledgedPayments.includes(orderId)) {
+                acknowledgedPayments.push(orderId);
+                localStorage.setItem('acknowledgedCashPayments', JSON.stringify(acknowledgedPayments));
+            }
+            
+            // Force reload notifications with new colors
+            setTimeout(() => {
+                loadCustomerNotifications();
+            }, 100);
+            
+            // Close modal and refresh
+            closePaymentModal();
+        }
+        
+        function acknowledgePaymentReceived(orderId) {
+            // Store acknowledged payment received notification
+            let acknowledgedPaymentReceived = JSON.parse(localStorage.getItem('acknowledgedPaymentReceived') || '[]');
+            if (!acknowledgedPaymentReceived.includes(orderId)) {
+                acknowledgedPaymentReceived.push(orderId);
+                localStorage.setItem('acknowledgedPaymentReceived', JSON.stringify(acknowledgedPaymentReceived));
+                
+                // Show success message
+                alert('Thank you! We have confirmed receipt of your payment.');
+                
+                // Reload notifications to show acknowledged state
+                loadCustomerNotifications();
+            }
+        }
+        
+        function showFeedbackModal(orderId) {
+            // Create and show feedback modal
+            const modal = document.createElement('div');
+            modal.id = 'feedbackModal';
+            modal.style.cssText = 'display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); z-index: 10002; justify-content: center; align-items: center;';
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+                    <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 25px; text-align: center; border-radius: 20px 20px 0 0;">
+                        <h4 style="margin: 0; font-weight: 700; font-size: 1.5rem;">
+                            <i class="fas fa-star me-2"></i>Share Your Feedback
+                        </h4>
+                        <p style="margin: 10px 0 0 0; opacity: 0.9;">How was your experience with us?</p>
+                    </div>
+                    <div style="padding: 30px;">
+                        <div style="text-align: center; margin-bottom: 25px;">
+                            <h5 style="color: #1f2937; margin-bottom: 15px;">Rate your experience:</h5>
+                            <div id="starRating" style="font-size: 2rem; margin-bottom: 20px;">
+                                <span class="star" data-rating="1" style="color: #d1d5db; cursor: pointer; margin: 0 5px;">★</span>
+                                <span class="star" data-rating="2" style="color: #d1d5db; cursor: pointer; margin: 0 5px;">★</span>
+                                <span class="star" data-rating="3" style="color: #d1d5db; cursor: pointer; margin: 0 5px;">★</span>
+                                <span class="star" data-rating="4" style="color: #d1d5db; cursor: pointer; margin: 0 5px;">★</span>
+                                <span class="star" data-rating="5" style="color: #d1d5db; cursor: pointer; margin: 0 5px;">★</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 25px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #1f2937;">Comments (optional):</label>
+                            <textarea id="feedbackComment" placeholder="Tell us about your experience..." style="width: 100%; height: 100px; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 15px; justify-content: center;">
+                            <button onclick="submitFeedback(${orderId})" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                            </button>
+                            <button onclick="closeFeedbackModal()" style="background: #6b7280; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add star rating functionality
+            const stars = modal.querySelectorAll('.star');
+            let selectedRating = 0;
+            
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    highlightStars(rating);
+                });
+                
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.rating);
+                    highlightStars(selectedRating);
+                });
+            });
+            
+            modal.addEventListener('mouseleave', function() {
+                highlightStars(selectedRating);
+            });
+            
+            function highlightStars(rating) {
+                stars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.style.color = '#fbbf24';
+                    } else {
+                        star.style.color = '#d1d5db';
+                    }
+                });
+            }
+            
+            // Store rating for submission
+            window.currentFeedbackRating = 0;
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    window.currentFeedbackRating = parseInt(this.dataset.rating);
+                });
+            });
+        }
+        
+        function submitFeedback(orderId) {
+            const rating = window.currentFeedbackRating || 0;
+            const comment = document.getElementById('feedbackComment').value;
+            
+            if (rating === 0) {
+                alert('Please select a rating before submitting.');
+                return;
+            }
+            
+            // Submit feedback to backend
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+            
+            fetch(`/api/submit-feedback/${orderId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    rating: rating,
+                    comment: comment
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Thank you for your feedback!');
+                    closeFeedbackModal();
+                    
+                    // Mark as acknowledged
+                    let acknowledgedFeedback = JSON.parse(localStorage.getItem('acknowledgedFeedback') || '[]');
+                    if (!acknowledgedFeedback.includes(orderId)) {
+                        acknowledgedFeedback.push(orderId);
+                        localStorage.setItem('acknowledgedFeedback', JSON.stringify(acknowledgedFeedback));
+                    }
+                    
+                    // Refresh notifications
+                    loadCustomerNotifications();
+                } else {
+                    alert('Error submitting feedback. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting feedback:', error);
+                alert('Error submitting feedback. Please try again.');
+            });
+        }
+        
+        function closeFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function closePaymentModal() {
+            const modal = document.getElementById('paymentNotificationModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            
+            // Refresh notification count and reload notification list
+            checkPaymentNotifications();
+            
+            // If notification page is still open, reload the list
+            const notificationPage = document.getElementById('payment-notification-page');
+            if (notificationPage && notificationPage.style.display !== 'none') {
+                loadCustomerNotifications();
+            }
+        }
+        
+        function openQRModal() {
+            const modal = document.getElementById('qrCodeModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+        
+        function closeQRModal() {
+            const modal = document.getElementById('qrCodeModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Initialize customer notifications
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if customer notification elements exist
+            const customerNotificationTrigger = document.getElementById('customer-notification-trigger');
+            if (customerNotificationTrigger) {
+                // Initialize notifications with a small delay to prevent flicker on page load
+                setTimeout(checkPaymentNotifications, 500);
+                setInterval(checkPaymentNotifications, 30000); // Update every 30 seconds
+                
+                // Add click handler for customer notification trigger
+                customerNotificationTrigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showNotificationPage(e);
+                });
+            }
+            
+            // Force reload notifications if page is already showing them (to apply new colors)
+            const notificationPage = document.getElementById('payment-notification-page');
+            if (notificationPage && notificationPage.style.display === 'block') {
+                loadCustomerNotifications();
+            }
+        });
+        
+        // Check for payment notifications on page load and every 30 seconds
+        checkPaymentNotifications();
+        
+        // Update notification page width when sidebar is resized
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            const resizeObserver = new ResizeObserver(function(entries) {
+                const page = document.getElementById('payment-notification-page');
+                if (page && page.style.display !== 'none') {
+                    if (window.innerWidth <= 768) {
+                        // Mobile: keep notification page full-width and not shifted
+                        page.style.marginLeft = '0';
+                        page.style.width = '100%';
+                        page.style.position = 'relative';
+                    } else {
+                        // Desktop: align with sidebar width
+                        const sidebarWidth = sidebar.offsetWidth;
+                        const totalMargin = sidebarWidth + 32; // sidebar width + margins (16px each side)
+                        page.style.marginLeft = totalMargin + 'px';
+                        page.style.width = 'calc(100% - ' + totalMargin + 'px)';
+                        page.style.position = 'absolute';
+                    }
+                }
+            });
+            resizeObserver.observe(sidebar);
+        }
+    </script>
+    {% endif %}
+    
+    <!-- Payment Notification Modal for Customer -->
+    {% if not user.is_staff and not user.is_superuser and user.is_authenticated %}
+    <div id="paymentNotificationModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.3); z-index: 10001; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); width: 95%; max-width: 800px; max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease-out;">
+            <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 25px; text-align: center; border-radius: 20px 20px 0 0; position: sticky; top: 0; z-index: 1;">
+                <h4 style="margin: 0; font-weight: 700; font-size: 1.5rem;">
+                    <i class="fas fa-bell me-2"></i>Payment Required
+                </h4>
+                <button onclick="closePaymentModal()" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.2rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="paymentModalContent" style="padding: 30px; text-align: center;">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- QR Code Enlargement Modal -->
+    {% if not user.is_staff and not user.is_superuser and user.is_authenticated %}
+    <div id="qrCodeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.9); z-index: 10000; justify-content: center; align-items: center;" onclick="closeQRModal()">
+        <div style="position: relative; max-width: 90%; max-height: 90%; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);" onclick="event.stopPropagation()">
+            <button onclick="closeQRModal()" style="position: absolute; top: 15px; right: 15px; background: #ef4444; border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; z-index: 1;">
+                <i class="fas fa-times"></i>
+            </button>
+            <div style="text-align: center;">
+                <h3 style="color: #1f2937; margin-bottom: 20px; font-weight: 700;">
+                    <i class="fas fa-qrcode me-2" style="color: #22c55e;"></i>GCash QR Code
+                </h3>
+                <img src="/static/images/gcash-qr-new.png" alt="GCash QR Code" style="max-width: 500px; width: 100%; border-radius: 15px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);">
+                <p style="margin-top: 20px; color: #6b7280; font-size: 0.95rem;">
+                    <i class="fas fa-mobile-alt me-2"></i>Open your GCash app and scan this QR code to pay
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Logout Modal -->
+    {% if user.is_authenticated %}
+    <div id="logoutModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); width: 50%; min-width: 500px; max-width: 700px; animation: slideIn 0.3s ease-out; margin: auto; position: relative;">
+            <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 20px; text-align: center; border-radius: 20px 20px 0 0;">
+                <h4 style="margin: 0; font-weight: 600; font-size: 1.3rem;">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout Confirmation
+                </h4>
+            </div>
+            <div style="padding: 30px; text-align: center;">
+                <div style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); color: white; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; box-shadow: 0 8px 16px rgba(255, 193, 7, 0.3);">
+                    <i class="fas fa-question"></i>
+                </div>
+                <h5 style="font-size: 1.2rem; font-weight: 600; color: #333; margin-bottom: 10px;">Are you sure you want to log out?</h5>
+                <p style="color: #6c757d; margin-bottom: 25px; font-size: 0.95rem; line-height: 1.4;">
+                    You will need to sign in again to access your pig farm management account. Any unsaved changes will be lost.
+                </p>
+                
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="confirmLogout()" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; padding: 12px 25px; border-radius: 25px; font-weight: 600; color: white; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3); cursor: pointer;">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                    <button onclick="hideLogoutModal()" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); border: none; padding: 12px 25px; border-radius: 25px; font-weight: 600; color: white; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3); cursor: pointer;">
+                        <i class="fas fa-arrow-left me-2"></i>Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</body>
+</html>

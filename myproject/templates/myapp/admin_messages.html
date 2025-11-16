@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Messages - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e;
+        color: white;
+        padding: 40px 0;
+        margin: -20px -20px 40px -20px;
+    }
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #f59e0b;
+        margin-bottom: 30px;
+    }
+    .unread-count {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #f59e0b;
+    }
+    .message-table {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .table {
+        margin: 0;
+    }
+    .table th {
+        background: #f8f9fa;
+        border: none;
+        font-weight: 600;
+        color: #374151;
+        padding: 15px;
+    }
+    .table td {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+    .table tbody tr {
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .table tbody tr:hover {
+        background: #f9fafb;
+    }
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .status-sent {
+        background: #e0f2fe;
+        color: #0277bd;
+    }
+    .status-unread {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    .status-read {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    .status-replied {
+        background: #dcfce7;
+        color: #166534;
+    }
+    .btn-reply {
+        background: #3b82f6;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .btn-reply:hover {
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+    }
+    .message-preview {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <h1 class="page-title">
+                <i class="fas fa-envelope me-3"></i>Customer Messages
+            </h1>
+            <p class="mb-0 mt-2" style="opacity: 0.9; font-size: 1.1rem;">Manage customer inquiries and support requests</p>
+        </div>
+    </div>
+
+    {% if unread_count > 0 %}
+    <div class="stats-card">
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: #f59e0b;"></i>
+            </div>
+            <div>
+                <div class="unread-count">{{ unread_count }}</div>
+                <div class="text-muted">Unread Message{{ unread_count|pluralize }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="message-table">
+        <h3 class="mb-4">All Customer Messages</h3>
+        
+        {% if customer_messages %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Subject</th>
+                        <th>Message Preview</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in customer_messages %}
+                    <tr>
+                        <td>
+                            <strong>{{ message.user.get_full_name|default:message.user.username }}</strong>
+                            <br><small class="text-muted">{{ message.user.email }}</small>
+                        </td>
+                        <td>
+                            <span class="fw-bold">{{ message.get_subject_display }}</span>
+                        </td>
+                        <td>
+                            <div class="message-preview">{{ message.message|truncatechars:100 }}</div>
+                        </td>
+                        <td>{{ message.created_at|date:"M d, Y" }}<br><small class="text-muted">{{ message.created_at|time:"g:i A" }}</small></td>
+                        <td>
+                            <span class="status-badge status-{{ message.status }}">
+                                {{ message.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_message_reply' message.id %}" class="btn-reply">
+                                <i class="fas fa-reply me-1"></i>
+                                {% if message.status == 'sent' %}Reply{% elif message.status == 'read' %}Reply{% else %}View Reply{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-envelope fa-3x text-muted mb-3"></i>
+            <h4>No Messages</h4>
+            <p class="text-muted">No customer messages have been received yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

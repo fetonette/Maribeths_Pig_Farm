@@ -1,0 +1,788 @@
+
+
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Home - Pig Farm{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header" style="background: #22c55e !important; color: white !important; padding: 30px; margin: 0 10px 30px 0; border-radius: 0 0 20px 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); max-width: 1200px; width: 100%;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="header-content">
+                        <h1 class="display-4 mb-2" style="color: white !important; font-weight: 800; font-size: 2.2rem; line-height: 1.1;">Welcome to Maribeth Pig Farm</h1>
+                        <p class="header-subtitle" style="color: rgba(255, 255, 255, 0.9); font-size: 1.2rem; margin: 0; font-weight: 500;">Premium Quality Pigs & Exceptional Service</p>
+                    </div>
+                    <div class="user-profile-header" style="color: rgba(255, 255, 255, 0.9) !important;">
+                        <div class="d-flex align-items-center">
+                            <div class="profile-avatar me-3">
+                                {% if user.userprofile.profile_photo %}
+                                    <img src="{{ user.userprofile.profile_photo.url }}" alt="Profile" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.8);">
+                                {% else %}
+                                    <div class="avatar-placeholder rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.8);">
+                                        <i class="fas fa-user" style="color: rgba(255, 255, 255, 0.9); font-size: 1.2rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="profile-info">
+                                <div class="profile-name" style="font-weight: 700; font-size: 1.1rem; margin-bottom: 2px;">
+                                    Hello, {{ user.userprofile.first_name|default:user.first_name|default:user.username }}!
+                                </div>
+                                <div class="profile-role" style="font-size: 0.85rem; opacity: 0.8;">
+                                    {% if user.is_superuser %}
+                                        <i class="fas fa-crown me-1"></i>Super Administrator
+                                    {% elif user.is_staff %}
+                                        <i class="fas fa-user-tie me-1"></i>Administrator
+                                    {% else %}
+                                        <i class="fas fa-user me-1"></i>Customer
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="profile-actions ms-3">
+                                <a href="{% url 'user_profile' %}" class="btn btn-sm" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: white; border-radius: 8px; padding: 6px 12px; text-decoration: none; font-size: 0.8rem; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255, 255, 255, 0.25)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'">
+                                    <i class="fas fa-cog me-1"></i>Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if not user.is_superuser and not user.is_staff %}
+    <!-- Customer Welcome Section -->
+    <div class="customer-welcome-section">
+        <div class="welcome-content">
+            <div class="welcome-icon">
+                <i class="fas fa-piggy-bank"></i>
+            </div>
+            <h2 class="welcome-title">Discover Quality Breeding</h2>
+            <p class="welcome-description">Explore our carefully selected collection of healthy pigs and piglets. Each animal is raised with care and meets the highest standards for your farming success.</p>
+            <div class="welcome-actions">
+                <a href="{% url 'available_pigs' %}" class="btn-view-pigs">
+                    <i class="fas fa-eye me-2"></i>View Available Pigs
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .customer-welcome-section {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border-radius: 25px;
+        padding: 70px 40px;
+        margin-bottom: 40px;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(34, 197, 94, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .customer-welcome-section::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translate(-20px, -20px) rotate(0deg); }
+        50% { transform: translate(20px, 20px) rotate(180deg); }
+    }
+
+    .customer-welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        pointer-events: none;
+    }
+
+    .welcome-content {
+        position: relative;
+        z-index: 1;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .welcome-icon {
+        font-size: 5rem;
+        margin-bottom: 30px;
+        opacity: 0.95;
+        background: rgba(255, 255, 255, 0.15);
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px auto;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+    }
+
+    .welcome-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .welcome-description {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin-bottom: 35px;
+        opacity: 0.95;
+        font-weight: 500;
+    }
+
+    .welcome-actions {
+        margin-top: 30px;
+    }
+
+    .btn-view-pigs {
+        background: rgba(255, 255, 255, 0.98);
+        color: #22c55e;
+        padding: 20px 45px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 1.15rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        min-width: 280px;
+        justify-content: center;
+    }
+
+    .btn-view-pigs::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-view-pigs:hover::before {
+        left: 100%;
+    }
+
+    .btn-view-pigs:hover {
+        background: white;
+        color: #16a34a;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        border-color: white;
+    }
+
+    @media (max-width: 768px) {
+        /* Full-width header like second image */
+        .page-header {
+            padding: 20px 15px;
+            margin: 0 -10px 20px -10px;
+            border-radius: 0;
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem !important;
+            line-height: 1.3;
+            font-weight: 700 !important;
+        }
+
+        .header-subtitle {
+            font-size: 0.9rem !important;
+        }
+
+        .profile-actions .btn {
+            padding: 4px 8px !important;
+            font-size: 0.7rem !important;
+        }
+
+        .customer-welcome-section {
+            padding: 32px 18px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+        }
+        
+        .welcome-title {
+            font-size: 1.8rem;
+        }
+        
+        .welcome-description {
+            font-size: 1rem;
+        }
+        
+        .btn-view-pigs {
+            padding: 14px 26px;
+            font-size: 0.95rem;
+            min-width: 240px;
+        }
+    }
+    </style>
+    {% endif %}
+    
+    {% if user.is_superuser or user.is_staff %}
+    <style>
+    /* Enhanced Admin Dashboard Styles */
+    .admin-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 18px;
+        margin-bottom: 32px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 0 32px 0;
+    }
+
+    .stat-card-modern {
+        background: white;
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card-modern:hover {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+
+    .stat-icon-modern {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 16px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-number-modern {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 6px;
+        line-height: 1;
+    }
+
+    .stat-label-modern {
+        font-size: 1rem;
+        color: #6b7280;
+        font-weight: 600;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-trend {
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .stat-trend.positive {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .stat-trend.neutral {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+
+    /* Activity Feed Panel */
+    .activity-feed-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 0 40px 0;
+    }
+
+    .activity-feed {
+        margin-bottom: 25px;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 20px 0;
+        border-bottom: 1px solid #f3f4f6;
+        transition: all 0.3s ease;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-item:hover {
+        background: #f9fafb;
+        margin: 0 -15px;
+        padding: 20px 15px;
+        border-radius: 12px;
+    }
+
+    .activity-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .activity-icon.new-reservation {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+
+    .activity-icon.pig-added {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+
+    .activity-icon.delivery-completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .activity-icon.feedback-received {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .activity-icon.today-delivery {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        animation: pulse 2s infinite;
+    }
+
+    .activity-icon.no-activity {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    }
+
+    .activity-icon.pending-approval {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        animation: pulse 2s infinite;
+    }
+
+    .activity-icon.low-stock {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        animation: pulse 2s infinite;
+    }
+
+    .reservation-details-mini {
+        margin: 8px 0;
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .customer-info {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .pickup-date {
+        color: #059669;
+        font-weight: 600;
+    }
+
+    .quick-actions {
+        margin: 10px 0;
+        display: flex;
+        gap: 8px;
+    }
+
+    .quick-action-btn {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .approve-btn {
+        background: #22c55e;
+        color: white;
+    }
+
+    .approve-btn:hover {
+        background: #16a34a;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .view-btn {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .view-btn:hover {
+        background: #2563eb;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .delivery-details-mini {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin: 8px 0;
+        flex-wrap: wrap;
+    }
+
+    .delivery-status-mini {
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .delivery-status-mini.status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .delivery-status-mini.status-confirmed {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .delivery-status-mini.status-completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .delivery-time-mini {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 3px 8px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .delivery-time-mini.no-time {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .delivery-date-mini {
+        background: #eff6ff;
+        color: #1d4ed8;
+        padding: 3px 8px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-right: 5px;
+    }
+
+    .delivery-price-mini {
+        background: #f0fdf4;
+        color: #166534;
+        padding: 3px 8px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+
+    .delivery-actions {
+        margin: 10px 0 5px 0;
+    }
+
+    .complete-delivery-btn {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .complete-delivery-btn:hover {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
+    }
+
+    .complete-delivery-btn i {
+        font-size: 0.9rem;
+    }
+
+    .activity-content h5 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 6px;
+    }
+
+    .activity-content p {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .activity-time {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        font-weight: 500;
+    }
+
+    .activity-footer {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .view-all-btn {
+        color: #22c55e;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .view-all-btn:hover {
+        color: #16a34a;
+        text-decoration: none;
+        transform: translateX(5px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .admin-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-card {
+            padding: 20px;
+        }
+        
+        .quick-actions-panel,
+        .activity-feed-panel {
+            padding: 20px;
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+        }
+        
+        .stat-number-modern {
+            font-size: 2rem;
+        }
+    }
+    </style>
+    {% endif %}
+
+    <script>
+    function dismissNotification(notificationId) {
+        const notification = document.getElementById(notificationId);
+        notification.style.animation = 'slideOut 0.3s ease-out forwards';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 300);
+    }
+
+    // Add slide out animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    </script>
+    
+    <!-- Enhanced Admin Dashboard -->
+    {% if user.is_superuser or user.is_staff %}
+    
+    <!-- Quick Stats Cards -->
+    <div class="admin-stats-grid">
+        <div class="stat-card-modern">
+            <div class="stat-icon-modern" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+                <i class="fas fa-piggy-bank"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number-modern">{{ available_pigs|default:0 }}</div>
+                <div class="stat-label-modern">Available Pigs</div>
+                <div class="stat-trend positive">
+                    <i class="fas fa-arrow-up"></i> +2 this week
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card-modern">
+            <div class="stat-icon-modern" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number-modern">{{ total_reservations|default:0 }}</div>
+                <div class="stat-label-modern">Total Reservations</div>
+                <div class="stat-trend positive">
+                    <i class="fas fa-arrow-up"></i> +5 this month
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card-modern">
+            <div class="stat-icon-modern" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number-modern">{{ todays_deliveries|default:0 }}</div>
+                <div class="stat-label-modern">Today's Deliveries</div>
+                <div class="stat-trend neutral">
+                    <i class="fas fa-clock"></i> Scheduled
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card-modern">
+            <div class="stat-icon-modern" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number-modern">₱{{ total_revenue|floatformat:0|intcomma|default:"0" }}</div>
+                <div class="stat-label-modern">Total Revenue</div>
+                <div class="stat-trend positive">
+                    <i class="fas fa-chart-line"></i> All-time earnings
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Recent Activity Feed -->
+    <div class="activity-feed-panel">
+        <div class="panel-header">
+            <h3 class="panel-title">
+                <i class="fas fa-truck me-2"></i>Today's Deliveries
+            </h3>
+            <p class="panel-subtitle">Orders scheduled for delivery today</p>
+        </div>
+        
+        <div class="activity-feed">
+            <!-- Show today's deliveries only -->
+            {% if todays_delivery_list %}
+                {% for delivery in todays_delivery_list %}
+                <div class="activity-item">
+                    <div class="activity-icon today-delivery">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h5>Delivery Scheduled Today</h5>
+                        <p>{{ delivery.pig.breed }} pig for {{ delivery.fullname }}</p>
+                        <div class="delivery-details-mini">
+                            <span class="delivery-status-mini status-{{ delivery.status }}">{{ delivery.get_status_display }}</span>
+                            {% if delivery.pickup_date %}
+                                <span class="delivery-date-mini">{{ delivery.pickup_date|date:"M d, Y" }}</span>
+                            {% endif %}
+                            {% if delivery.pickup_time %}
+                                <span class="delivery-time-mini">{{ delivery.pickup_time }}</span>
+                            {% else %}
+                                <span class="delivery-time-mini no-time">Time not set</span>
+                            {% endif %}
+                            <span class="delivery-price-mini">₱{{ delivery.pig.price|floatformat:0 }}</span>
+                        </div>
+                        <div class="delivery-actions">
+                            {% if user.is_superuser or user.is_staff %}
+                                <a href="{% url 'complete_order' delivery.id %}" 
+                                   class="complete-delivery-btn">
+                                    <i class="fas fa-check-circle"></i> Complete Delivery
+                                </a>
+                            {% endif %}
+                        </div>
+                        <span class="activity-time">Scheduled for today</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

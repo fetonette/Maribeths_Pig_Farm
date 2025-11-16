@@ -1,0 +1,475 @@
+{% extends 'base.html' %}
+
+{% block title %}Reservation - Pig Farm{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-radius: 0 0 25px 25px;
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
+    }
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .modern-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    .card-header-modern {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 2px solid #e9ecef;
+        padding: 20px 25px;
+        font-weight: 700;
+        color: #1a202c;
+        font-size: 1.1rem;
+    }
+    .card-body-modern {
+        padding: 30px;
+    }
+    .pig-image-modern {
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .pig-details-modern {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+        border: 1px solid #e9ecef;
+    }
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    .detail-label {
+        font-weight: 600;
+        color: #6c757d;
+    }
+    .detail-value {
+        font-weight: 700;
+        color: #1a202c;
+    }
+    .price-value {
+        color: #22c55e;
+        font-size: 1.2rem;
+    }
+    .form-label-modern {
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 8px;
+    }
+    .form-control-modern {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    .form-control-modern:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    .form-control:focus {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25) !important;
+    }
+    .form-select:focus {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25) !important;
+    }
+    .btn-modern-primary {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 15px;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+    }
+    .btn-modern-primary:hover {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        box-shadow: 0 12px 25px rgba(34, 197, 94, 0.4);
+        color: white;
+    }
+    .btn-modern-secondary {
+        background: #6c757d;
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 15px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    .btn-modern-secondary:hover {
+        background: #5a6268;
+        color: white;
+    }
+    .alert-modern {
+        border-radius: 15px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+    }
+    .alert-info-modern {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%);
+        color: #15803d;
+        border-left: 4px solid #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+    
+    /* Hide number input spinners */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    
+    input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="page-title">
+                    <i class="fas fa-calendar-check me-3"></i>Make a Reservation
+                </h1>
+                <a href="{% url 'available_pigs' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Available Pigs
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row">
+        {% if pig %}
+        <div class="col-md-4">
+            <div class="modern-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-piggy-bank me-2"></i>Selected Pig
+                </div>
+                <div class="card-body-modern">
+                    {% if pig.picture %}
+                    <img src="{{ pig.picture.url }}" class="pig-image-modern w-100 mb-3" alt="{{ pig.breed }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="pig-image-modern w-100 bg-light d-flex align-items-center justify-content-center mb-3" style="height: 200px;">
+                        <i class="fas fa-piggy-bank fa-4x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <h5 class="text-center mb-4" style="font-weight: 800; color: #1a202c; font-size: 1.4rem;">{{ pig.breed }}</h5>
+                    
+                    <div class="pig-details-modern">
+                        <div class="detail-row">
+                            <span class="detail-label">Age:</span>
+                            <span class="detail-value">{{ pig.get_age_display }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Weight:</span>
+                            <span class="detail-value">{{ pig.weight_kg|floatformat:0 }} kg</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Sex:</span>
+                            <span class="detail-value">{{ pig.get_sex_display }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Price:</span>
+                            <span class="detail-value price-value">₱{{ pig.price|floatformat:0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+        {% else %}
+        <div class="col-12">
+        {% endif %}
+            <div class="modern-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-user me-2"></i>Reservation Details
+                </div>
+                <div class="card-body-modern">
+                    {% if pig %}
+                    <div class="alert-modern alert-info-modern">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Reservation:</strong> Please fill in your details to reserve this pig. You can schedule pickup/delivery for a future date.
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if not pig %}
+                        <div class="mb-3">
+                            <label for="{{ form.pig.id_for_label }}" class="form-label">Select Pig</label>
+                            {{ form.pig }}
+                            {% if form.pig.errors %}
+                                <div class="text-danger small">{{ form.pig.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="mb-3">
+                            <label for="{{ form.pig.id_for_label }}" class="form-label">Selected Pig</label>
+                            {{ form.pig }}
+                            {% if form.pig.errors %}
+                                <div class="text-danger small">{{ form.pig.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.fullname.id_for_label }}" class="form-label form-label-modern">Full Name</label>
+                                {{ form.fullname }}
+                                {% if form.fullname.errors %}
+                                    <div class="text-danger small">{{ form.fullname.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.contact_number.id_for_label }}" class="form-label form-label-modern">Contact Number</label>
+                                {{ form.contact_number }}
+                                {% if form.contact_number.errors %}
+                                    <div class="text-danger small">{{ form.contact_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.address.id_for_label }}" class="form-label form-label-modern">Address</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger small">{{ form.address.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.delivery_option.id_for_label }}" class="form-label">Delivery Option</label>
+                            {{ form.delivery_option }}
+                            {% if form.delivery_option.errors %}
+                                <div class="text-danger small">{{ form.delivery_option.errors }}</div>
+                            {% endif %}
+                            
+                            <!-- Delivery Fee Display -->
+                            <div class="mt-2 p-2 bg-light rounded" id="delivery-fee-info" style="display: none;">
+                                <small class="text-muted">
+                                    <i class="fas fa-truck me-1"></i>
+                                    Delivery Fee: <span class="fw-bold text-success" id="delivery-fee-display">₱125</span>
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.pickup_date.id_for_label }}" class="form-label">Pickup/Delivery Date</label>
+                                {{ form.pickup_date }}
+                                {% if form.pickup_date.errors %}
+                                    <div class="text-danger small">{{ form.pickup_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.pickup_time.id_for_label }}" class="form-label">Pickup/Delivery Time</label>
+                                {{ form.pickup_time }}
+                                {% if form.pickup_time.errors %}
+                                    <div class="text-danger small">{{ form.pickup_time.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.payment_method.id_for_label }}" class="form-label">Payment Method</label>
+                            {{ form.payment_method }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger small">{{ form.payment_method.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.down_payment.id_for_label }}" class="form-label form-label-modern">Down Payment (₱)</label>
+                            <div class="text-muted small mb-2">Minimum 50% down payment required. You can pay any amount equal to or higher than the minimum.</div>
+                            {% if pig %}
+                                <div class="alert alert-info py-2 mb-2" style="background: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px;">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Minimum Down Payment: ₱<span id="minimum-amount">0.00</span></strong>
+                                    <small class="d-block mt-1 text-muted">50% of total price (₱<span id="total-price-display">{{ pig.price|floatformat:2 }}</span>)</small>
+                                </div>
+                                {{ form.down_payment }}
+                            {% else %}
+                                {{ form.down_payment }}
+                            {% endif %}
+                            {% if form.down_payment.errors %}
+                                <div class="text-danger small">{{ form.down_payment.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'available_pigs' %}" class="btn btn-modern-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-modern-primary">
+                                <i class="fas fa-calendar-check me-2"></i>Submit Reservation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if pig %}
+<script>
+    // Pass pig price from Django to JavaScript
+    window.pigPrice = parseFloat('{{ pig.price }}');
+</script>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethod = document.getElementById('id_payment_method');
+    const proofSection = document.getElementById('proof-payment-section');
+    const deliveryOption = document.getElementById('id_delivery_option');
+    const deliveryFeeInfo = document.getElementById('delivery-fee-info');
+    const deliveryFeeDisplay = document.getElementById('delivery-fee-display');
+    const minimumAmountSpan = document.getElementById('minimum-amount');
+    const totalPriceDisplay = document.getElementById('total-price-display');
+    
+    function toggleProofSection() {
+        if (paymentMethod && proofSection) {
+            const value = paymentMethod.value;
+            if (value === 'gcash') {
+                proofSection.style.display = 'block';
+            } else {
+                proofSection.style.display = 'none';
+            }
+        }
+    }
+    
+    if (paymentMethod) {
+        paymentMethod.addEventListener('change', toggleProofSection);
+        toggleProofSection(); // Initial check
+    }
+    
+    // Calculate delivery fee and update total price
+    function updateDeliveryFee() {
+        if (!deliveryOption || !window.pigPrice) return;
+        
+        const selectedOption = deliveryOption.value;
+        let deliveryFee = 0;
+        
+        if (selectedOption === 'home') {
+            deliveryFee = 125;
+            if (deliveryFeeInfo) deliveryFeeInfo.style.display = 'block';
+        } else {
+            deliveryFee = 0;
+            if (deliveryFeeInfo) deliveryFeeInfo.style.display = 'none';
+        }
+        
+        const totalPrice = window.pigPrice + deliveryFee;
+        const minimumPayment = (totalPrice * 0.50).toFixed(2);
+        
+        // Update displays
+        if (deliveryFeeDisplay) deliveryFeeDisplay.textContent = '₱' + deliveryFee;
+        if (totalPriceDisplay) totalPriceDisplay.textContent = totalPrice.toFixed(2);
+        if (minimumAmountSpan) minimumAmountSpan.textContent = minimumPayment;
+    }
+    
+    // Calculate and display minimum down payment (50% of total price including delivery)
+    function calculateMinimumPayment() {
+        updateDeliveryFee();
+    }
+    
+    // Calculate on page load
+    calculateMinimumPayment();
+    
+    // Update when delivery option changes
+    if (deliveryOption) {
+        deliveryOption.addEventListener('change', updateDeliveryFee);
+    }
+    
+    // Recalculate if pig selection changes
+    const pigSelect = document.querySelector('select[name="pig"]');
+    if (pigSelect) {
+        pigSelect.addEventListener('change', function() {
+            // This would need backend support to get new pig price
+            // For now, just recalculate with current value
+            calculateMinimumPayment();
+        });
+    }
+    
+    // Contact number validation - only allow numbers
+    const contactNumberInput = document.querySelector('input[name="contact_number"]');
+    
+    if (contactNumberInput) {
+        // Prevent non-numeric characters from being typed
+        contactNumberInput.addEventListener('keypress', function(e) {
+            // Allow only digits (0-9)
+            const char = String.fromCharCode(e.which);
+            if (!/[0-9]/.test(char)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Prevent pasting non-numeric content
+        contactNumberInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            const numbersOnly = paste.replace(/\D/g, ''); // Remove all non-digits
+            
+            // Only paste if there are numbers and it won't exceed 11 digits
+            if (numbersOnly && (this.value.length + numbersOnly.length) <= 11) {
+                this.value += numbersOnly;
+            }
+        });
+        
+        // Remove any non-numeric characters on input (fallback)
+        contactNumberInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, ''); // Remove all non-digits
+            
+            // Limit to 11 digits
+            if (this.value.length > 11) {
+                this.value = this.value.slice(0, 11);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

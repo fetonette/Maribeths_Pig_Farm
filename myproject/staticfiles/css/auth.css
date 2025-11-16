@@ -1,0 +1,196 @@
+/* Authentication Pages Styling */
+.auth-container {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 40px 20px;
+    overflow: visible;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: float 20s infinite linear;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-50px, -50px) rotate(360deg); }
+}
+
+.stylish-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    padding: 20px 20px;
+    width: 78%;
+    max-width: 360px;
+    position: relative;
+    z-index: 2;
+    border: 1px solid rgba(255,255,255,0.2);
+    animation: slideUp 0.8s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.logo-container {
+    width: 170px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    animation: bounce 2s infinite;
+    overflow: hidden;
+    position: relative;
+}
+
+.logo-container img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.stylish-input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 8px 14px;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.stylish-input:focus {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: #22c55e;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+    outline: none;
+    transform: translateY(-2px);
+}
+
+.stylish-input:hover {
+    border-color: rgba(34, 197, 94, 0.3);
+    transform: translateY(-1px);
+}
+
+.stylish-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stylish-btn {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    border: none;
+    border-radius: 15px;
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stylish-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.stylish-btn:hover::before {
+    left: 100%;
+}
+
+.stylish-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(34, 197, 94, 0.4);
+}
+
+.stylish-link {
+    color: #22c55e;
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.stylish-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    transition: width 0.3s ease;
+}
+
+.stylish-link:hover::after {
+    width: 100%;
+}
+
+.stylish-link:hover {
+    color: #16a34a;
+}
+
+.welcome-text {
+    background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.subtitle-text {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 40px;
+}

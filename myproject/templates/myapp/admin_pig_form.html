@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e;
+        color: white;
+        padding: 40px 0;
+        margin: -20px -20px 40px -20px;
+        border-radius: 0 0 25px 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        color: white;
+    }
+    .page-title i {
+        color: white;
+    }
+    .card-header {
+        background: #f8f9fa !important;
+        border-bottom: 1px solid #dee2e6;
+        color: #000000;
+        font-weight: 700;
+    }
+    .card-header h5 {
+        color: #000000;
+        font-weight: 700;
+        margin: 0;
+    }
+    .btn-primary {
+        background: #22c55e;
+        border-color: #22c55e;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: #22c55e;
+        border-color: #22c55e;
+        color: white;
+        transform: none;
+        box-shadow: none;
+    }
+    .btn-primary:focus {
+        background: #22c55e;
+        border-color: #22c55e;
+        color: white;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    /* Override ALL blue styling with green */
+    .form-control:focus,
+    .form-select:focus,
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25) !important;
+        outline: none !important;
+    }
+    
+    .form-check-input:focus {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25) !important;
+        outline: none !important;
+    }
+    
+    .form-check-input:checked {
+        background-color: #22c55e !important;
+        border-color: #22c55e !important;
+    }
+    
+    /* Remove any blue text selection */
+    ::selection {
+        background-color: rgba(34, 197, 94, 0.3) !important;
+        color: inherit !important;
+    }
+    
+    ::-moz-selection {
+        background-color: rgba(34, 197, 94, 0.3) !important;
+        color: inherit !important;
+    }
+    
+    /* Remove blue outline from all elements */
+    * {
+        outline-color: #22c55e !important;
+    }
+    
+    /* Override Bootstrap blue focus ring */
+    .btn:focus,
+    .form-control:focus,
+    .form-select:focus,
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25) !important;
+        border-color: #22c55e !important;
+    }
+    
+    /* Remove any blue highlights from card header */
+    .card-header * {
+        color: #000000 !important;
+    }
+</style>
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="page-title">
+                    <i class="fas fa-piggy-bank me-3"></i>{{ title }}
+                </h1>
+            </div>
+        </div>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-edit"></i> Pig Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.breed.id_for_label }}" class="form-label">Breed</label>
+                                {{ form.breed }}
+                                {% if form.breed.errors %}
+                                    <div class="text-danger small">{{ form.breed.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.sex.id_for_label }}" class="form-label">Sex</label>
+                                {{ form.sex }}
+                                {% if form.sex.errors %}
+                                    <div class="text-danger small">{{ form.sex.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.age_months.id_for_label }}" class="form-label">Age (months)</label>
+                                {{ form.age_months }}
+                                {% if form.age_months.errors %}
+                                    <div class="text-danger small">{{ form.age_months.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.weight_kg.id_for_label }}" class="form-label">Weight (kg)</label>
+                                {{ form.weight_kg }}
+                                {% if form.weight_kg.errors %}
+                                    <div class="text-danger small">{{ form.weight_kg.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.price.id_for_label }}" class="form-label">Price (₱)</label>
+                                {{ form.price }}
+                                {% if form.price.errors %}
+                                    <div class="text-danger small">{{ form.price.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Add a short description of the pig's characteristics (optional)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.picture.id_for_label }}" class="form-label">Picture</label>
+                            {{ form.picture }}
+                            {% if pig and pig.picture %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Current image:</small><br>
+                                    <img src="{{ pig.picture.url }}" alt="{{ pig.breed }}" 
+                                         class="img-thumbnail mt-1" style="max-width: 200px; max-height: 200px;">
+                                </div>
+                            {% endif %}
+                            {% if form.picture.errors %}
+                                <div class="text-danger small">{{ form.picture.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.is_available }}
+                            <label class="form-check-label" for="{{ form.is_available.id_for_label }}">
+                                Available for reservation
+                            </label>
+                            {% if form.is_available.errors %}
+                                <div class="text-danger small">{{ form.is_available.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'available_pigs' %}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Pig
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

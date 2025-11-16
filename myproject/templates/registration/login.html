@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - Pig Farm{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=26">
+
+<style>
+    /* Login page only: make inputs a bit smaller */
+    .auth-container .stylish-card input.stylish-input {
+        height: 36px;
+        padding: 6px 10px;
+        font-size: 13px;
+        border-radius: 10px;
+    }
+
+    /* Login page only: make logo smaller */
+    .auth-container .logo-container {
+        width: 170px;
+        height: 100px;
+        margin: 0 auto 12px;
+    }
+
+    .auth-container .logo-container img {
+        width: 90px;
+        height: 90px;
+        object-fit: contain;
+    }
+
+    /* Login page only: scale down everything inside the card */
+    .auth-container .stylish-card {
+        padding: 24px 24px;
+    }
+
+    .auth-container .stylish-card .card-inner {
+        transform: scale(0.8);
+        transform-origin: top center;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="stylish-card">
+        <div class="card-inner">
+            <div class="text-center">
+                <div class="logo-container">
+                    <img src="{% static 'images/maribeth-logo.png' %}" alt="Maribeth Pig Farm Logo">
+                </div>
+                <h2 class="welcome-text">Welcome</h2>
+                <p class="subtitle-text">Log in to your pig farm account</p>
+            </div>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div class="alert alert-danger" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; color: #dc2626; padding: 12px; margin-bottom: 20px; font-size: 14px;">
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="username" class="stylish-label">Username</label>
+                    <input type="text" class="form-control stylish-input" id="username" name="username" required placeholder="Enter your username">
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="stylish-label">Password</label>
+                    <input type="password" class="form-control stylish-input" id="password" name="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn stylish-btn w-100 mb-4">Log In</button>
+            </form>
+            
+            <div class="text-center">
+                <p class="mb-0">Don't have an account? <a href="{% url 'signup' %}" class="stylish-link">Sign up here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

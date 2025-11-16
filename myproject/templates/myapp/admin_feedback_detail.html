@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Feedback Details - Pig Farm{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: #22c55e;
+        color: white;
+        padding: 40px 0;
+        margin: -20px -20px 30px -20px;
+        border-radius: 0;
+    }
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0;
+    }
+    .feedback-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .feedback-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        margin-bottom: 20px;
+    }
+    .customer-info {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    .rating-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+    .rating-item {
+        text-align: center;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+    }
+    .rating-label {
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .rating-stars {
+        color: #fbbf24;
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+    .rating-number {
+        font-weight: 800;
+        color: #374151;
+        font-size: 1.2rem;
+    }
+    .average-rating {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        border-color: #fbbf24;
+    }
+    .comments-section {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    .comments-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #374151;
+        margin: 0;
+    }
+    .recommendation-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .recommend-yes {
+        background: #dcfce7;
+        color: #166534;
+    }
+    .recommend-no {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+    .feedback-type-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .type-reservation {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    .type-purchase {
+        background: #dcfce7;
+        color: #166534;
+    }
+    .btn-back {
+        background: #6b7280;
+        border: none;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    .btn-back:hover {
+        background: #4b5563;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .info-row:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    .info-label {
+        font-weight: 700;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    .info-value {
+        font-weight: 600;
+        color: #374151;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="page-title">
+                    <i class="fas fa-star me-3"></i>Feedback Details
+                </h1>
+                <a href="{% url 'admin_feedback_list' %}" class="btn-back">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Feedback List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="feedback-container">
+        <!-- Customer & Order Information -->
+        <div class="feedback-card">
+            <h3 class="mb-4">
+                <i class="fas fa-user me-2"></i>Customer Information
+            </h3>
+            <div class="customer-info">
+                <div class="info-row">
+                    <span class="info-label">Customer</span>
+                    <span class="info-value">{{ feedback.user.username }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Feedback Type</span>
+                    <span class="feedback-type-badge type-{{ feedback.feedback_type }}">
+                        {{ feedback.get_feedback_type_display }}
+                    </span>
+                </div>
+                {% if feedback.reservation %}
+                <div class="info-row">
+                    <span class="info-label">Pig</span>
+                    <span class="info-value">{{ feedback.reservation.pig.breed }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Order Date</span>
+                    <span class="info-value">{{ feedback.reservation.created_at|date:"F d, Y g:i A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Delivery Method</span>
+                    <span class="info-value">{{ feedback.reservation.get_delivery_option_display }}</span>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <span class="info-label">Feedback Date</span>
+                    <span class="info-value">{{ feedback.created_at|date:"F d, Y g:i A" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ratings -->
+        <div class="feedback-card">
+            <h3 class="mb-4">
+                <i class="fas fa-star me-2"></i>Ratings
+            </h3>
+            <div class="rating-section">
+                <div class="rating-item">
+                    <div class="rating-label">Overall Experience</div>
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= feedback.overall_rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="rating-number">{{ feedback.overall_rating }}/5</div>
+                </div>
+
+                <div class="rating-item">
+                    <div class="rating-label">Service Quality</div>
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= feedback.service_quality %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="rating-number">{{ feedback.service_quality }}/5</div>
+                </div>
+
+                <div class="rating-item">
+                    <div class="rating-label">Pig Quality</div>
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= feedback.pig_quality %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="rating-number">{{ feedback.pig_quality }}/5</div>
+                </div>
+
+                <div class="rating-item">
+                    <div class="rating-label">Delivery Experience</div>
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= feedback.delivery_experience %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="rating-number">{{ feedback.delivery_experience }}/5</div>
+                </div>
+
+                <div class="rating-item average-rating">
+                    <div class="rating-label" style="color: white;">Average Rating</div>
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= feedback.get_average_rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="rating-number" style="color: white;">{{ feedback.get_average_rating|floatformat:1 }}/5</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        {% if feedback.comments %}
+        <div class="feedback-card">
+            <h3 class="mb-4">
+                <i class="fas fa-comment me-2"></i>Customer Comments
+            </h3>
+            <div class="comments-section">
+                <p class="comments-text">"{{ feedback.comments }}"</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recommendation -->
+        <div class="feedback-card">
+            <h3 class="mb-4">
+                <i class="fas fa-thumbs-up me-2"></i>Recommendation
+            </h3>
+            <div class="text-center">
+                <span class="recommendation-badge {% if feedback.would_recommend %}recommend-yes{% else %}recommend-no{% endif %}">
+                    {% if feedback.would_recommend %}
+                        <i class="fas fa-thumbs-up me-2"></i>Would Recommend Our Farm
+                    {% else %}
+                        <i class="fas fa-thumbs-down me-2"></i>Would Not Recommend Our Farm
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

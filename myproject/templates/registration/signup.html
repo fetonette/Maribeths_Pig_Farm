@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign Up - Pig Farm{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=23">
+<link rel="stylesheet" href="{% static 'css/signup.css' %}?v=31">
+
+<style>
+/* TARGETED CSS TO REMOVE ONLY GREEN DECORATIVE LINES */
+.auth-container.signup *::before,
+.auth-container.signup *::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Remove only decorative elements, not functional backgrounds */
+.stylish-card.signup .text-center::after,
+.stylish-card.signup .welcome-text::after,
+.stylish-card.signup .subtitle-text::after {
+    display: none !important;
+}
+
+/* Preserve essential backgrounds */
+.auth-container.signup {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%) !important;
+}
+
+.stylish-card.signup {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+}
+
+.stylish-btn.signup {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%) !important;
+}
+
+.welcome-text.signup {
+    background: linear-gradient(135deg, #22c55e, #16a34a, #15803d) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Make logo same size as login page */
+.logo-container.signup {
+    width: 400px !important;
+    height: 200px !important;
+    margin: 0 auto 5px !important;
+}
+
+.logo-container.signup img {
+    width: 230px !important;
+    height: 230px !important;
+}
+
+/* Reduce spacing around text elements */
+.welcome-text.signup {
+    margin-bottom: 5px !important;
+}
+
+.subtitle-text.signup {
+    margin-bottom: 25px !important;
+}
+</style>
+
+<div class="auth-container signup">
+    <div class="stylish-card signup">
+        <div class="text-center" style="border: none !important; border-bottom: none !important;">
+            <div class="logo-container signup">
+                <img src="{% static 'images/maribeth-logo.png' %}" alt="Maribeth Pig Farm Logo" style="border-radius: 0 !important; border: none !important; object-fit: contain !important;">
+            </div>
+            <h2 class="welcome-text signup" style="border: none !important; border-bottom: none !important;">Join Our Farm</h2>
+            <p class="subtitle-text signup" style="border: none !important; border-bottom: none !important;">Create your pig farm account today</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="row form-row">
+                <div class="col-md-6 mb-3">
+                    <label class="stylish-label signup">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="error-text">{{ form.first_name.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="stylish-label signup">Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div class="error-text">{{ form.last_name.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3 form-row">
+                <label class="stylish-label signup">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="error-text">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3 form-row">
+                <label class="stylish-label signup">Email Address</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="error-text">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3 form-row">
+                <label class="stylish-label signup">Phone Number</label>
+                {{ form.cellphone_number }}
+                {% if form.cellphone_number.errors %}
+                    <div class="error-text">{{ form.cellphone_number.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3 form-row">
+                <label class="stylish-label signup">Address</label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                    <div class="error-text">{{ form.address.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="row form-row">
+                <div class="col-md-6 mb-3">
+                    <label class="stylish-label signup">Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <div class="error-text">{{ form.password1.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="stylish-label signup">Confirm Password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="error-text">{{ form.password2.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <button type="submit" class="btn stylish-btn signup w-100 mb-4">Create Account</button>
+        </form>
+        
+        <div class="text-center">
+            <p class="mb-0">Already have an account? <a href="{% url 'login' %}" class="stylish-link signup">Log in here</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('id_cellphone_number');
+    
+    if (phoneInput) {
+        // Restrict input to numbers only and limit to 11 digits
+        phoneInput.addEventListener('input', function(e) {
+            // Remove any non-digit characters
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Limit to 11 digits
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
+            
+            e.target.value = value;
+        });
+        
+        // Prevent non-numeric characters from being typed
+        phoneInput.addEventListener('keypress', function(e) {
+            // Allow backspace, delete, tab, escape, enter
+            if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+                // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (e.keyCode === 65 && e.ctrlKey === true) ||
+                (e.keyCode === 67 && e.ctrlKey === true) ||
+                (e.keyCode === 86 && e.ctrlKey === true) ||
+                (e.keyCode === 88 && e.ctrlKey === true)) {
+                return;
+            }
+            
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Add real-time validation feedback
+        phoneInput.addEventListener('blur', function(e) {
+            const value = e.target.value;
+            const errorDiv = e.target.parentNode.querySelector('.phone-error');
+            
+            // Remove existing error message
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+            
+            if (value && value.length !== 11) {
+                const error = document.createElement('div');
+                error.className = 'phone-error text-danger small mt-1';
+                error.textContent = 'Phone number must be exactly 11 digits';
+                e.target.parentNode.appendChild(error);
+            } else if (value && !value.startsWith('09')) {
+                const error = document.createElement('div');
+                error.className = 'phone-error text-danger small mt-1';
+                error.textContent = 'Phone number must start with 09';
+                e.target.parentNode.appendChild(error);
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

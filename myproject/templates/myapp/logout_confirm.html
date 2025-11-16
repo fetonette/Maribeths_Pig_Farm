@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Logout Confirmation - Pig Farm{% endblock %}
+
+{% block content %}
+<style>
+    .logout-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    }
+    .logout-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: none;
+        overflow: hidden;
+        max-width: 450px;
+        width: 100%;
+        animation: slideIn 0.5s ease-out;
+    }
+    .logout-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+        border: none;
+    }
+    .logout-header h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+    .logout-body {
+        padding: 40px 30px;
+        text-align: center;
+    }
+    .warning-icon {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        font-size: 2.5rem;
+        box-shadow: 0 8px 16px rgba(255, 193, 7, 0.3);
+    }
+    .logout-question {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    .logout-description {
+        color: #6c757d;
+        margin-bottom: 35px;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    .btn-logout {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        color: white;
+        margin-right: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    }
+    .btn-logout:hover {
+        background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+        box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+        color: white;
+    }
+    .btn-cancel {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+    }
+    .btn-cancel:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+        box-shadow: 0 6px 12px rgba(108, 117, 125, 0.4);
+        color: white;
+    }
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    @media (max-width: 768px) {
+        .logout-body {
+            padding: 30px 20px;
+        }
+        .btn-logout, .btn-cancel {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+    }
+</style>
+
+<div class="logout-container">
+    <div class="logout-card">
+        <div class="logout-header">
+            <h4><i class="fas fa-sign-out-alt me-2"></i>Logout Confirmation</h4>
+        </div>
+        <div class="logout-body">
+            <div class="warning-icon">
+                <i class="fas fa-question"></i>
+            </div>
+            <h5 class="logout-question">Are you sure you want to log out?</h5>
+            <p class="logout-description">
+                You will need to sign in again to access your pig farm management account. 
+                Any unsaved changes will be lost.
+            </p>
+            
+            <form method="post" action="{% url 'logout_confirm' %}" class="logout-form">
+                {% csrf_token %}
+                <button type="submit" name="confirm" value="yes" class="btn btn-logout">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </button>
+                <button type="submit" name="confirm" value="no" class="btn btn-cancel">
+                    <i class="fas fa-arrow-left me-2"></i>Cancel
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

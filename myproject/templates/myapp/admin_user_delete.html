@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete User - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-user-times"></i> Delete User</h2>
+                <a href="{% url 'admin_user_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to User List
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Confirm User Deletion</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-warning"></i>
+                        <strong>Warning:</strong> This action cannot be undone!
+                    </div>
+                    
+                    <p>Are you sure you want to delete the following user?</p>
+                    
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Username:</strong></div>
+                                <div class="col-sm-8">{{ user_obj.username }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Full Name:</strong></div>
+                                <div class="col-sm-8">
+                                    {% if user_obj.first_name or user_obj.last_name %}
+                                        {{ user_obj.first_name }} {{ user_obj.last_name }}
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Email:</strong></div>
+                                <div class="col-sm-8">{{ user_obj.email|default:"Not provided" }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Date Joined:</strong></div>
+                                <div class="col-sm-8">{{ user_obj.date_joined|date:"M d, Y" }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Reservations:</strong></div>
+                                <div class="col-sm-8">
+                                    <span class="badge bg-info">{{ user_obj.reservation_set.count }}</span>
+                                    {% if user_obj.reservation_set.count > 0 %}
+                                        <small class="text-muted">(These will also be deleted)</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if user_obj.reservation_set.count > 0 %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> Deleting this user will also delete {{ user_obj.reservation_set.count }} reservation(s) and make the associated pigs available again.
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'admin_user_list' %}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
