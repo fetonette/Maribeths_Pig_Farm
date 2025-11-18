@@ -17,6 +17,10 @@ def main():
         ) from exc
     # Auto-fake migration for Render free plan (no shell access)
     if os.environ.get("RENDER") and len(sys.argv) > 1 and sys.argv[1] == "migrate":
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute('DROP TABLE IF EXISTS myapp_cart CASCADE')
+
         from django.core.management import call_command
         try:
             call_command("migrate", "myapp", "0021", fake=True)
