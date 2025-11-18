@@ -16,7 +16,7 @@ def main():
             "forget to activate a virtual environment?"
         ) from exc
     # Auto-fake migration for Render free plan (no shell access)
-    if os.environ.get("RENDER"):
+    if os.environ.get("RENDER") and len(sys.argv) > 1 and sys.argv[1] == "migrate":
         from django.core.management import call_command
         try:
             call_command("migrate", "myapp", "0021", fake=True)
