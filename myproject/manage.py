@@ -15,6 +15,14 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+    # Auto-fake migration for Render free plan (no shell access)
+    if os.environ.get("RENDER"):
+        from django.core.management import call_command
+        try:
+            call_command("migrate", "myapp", "0021", fake=True)
+        except Exception:
+            pass
+
     execute_from_command_line(sys.argv)
 
 
