@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myapp', '0007_delete_cart'),
+        ('myapp', '0005_feedback'),
     ]
 
     operations = [

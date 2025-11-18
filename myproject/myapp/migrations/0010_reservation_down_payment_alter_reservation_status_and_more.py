@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myapp', '0009_cart'),
+        ('myapp', '0008_alter_reservation_status'),
     ]
 
     operations = [
